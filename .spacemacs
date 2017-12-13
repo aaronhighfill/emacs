@@ -398,7 +398,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
 
 
-(cua-mode 1)
+  (cua-mode 1)
 
 (setq mouse-drag-copy-region t)
 
@@ -536,6 +536,9 @@ before packages are loaded. If you are unsure, you should try in setting them in
  ;;   (cua-rectangle-mark-mode arg)))
 
 ;;(define-key cua-global-keymap (kbd "C-<return>") #'jpk/C-<return>)
+
+
+
 
 
 
@@ -718,8 +721,8 @@ you should place your code here."
 
 
 
-  (load-file "~/.emacs.d/private/local/reddit.el")
-
+;; for per PC settings.
+  (load-file "~/.emacs.d/private/local/private.el")
 
 
 
