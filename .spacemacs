@@ -52,6 +52,7 @@ values."
      ;; git
      ;; markdown
      neotree
+     csv
      ;; org
      ;; (shell :variables
      ;;        shell-default-height 30
@@ -62,11 +63,12 @@ values."
      emacs-lisp
      auto-completion
      (auto-completion :variables
-                      auto-completion-return-key-behavior 'complete
+                      auto-completion-return-key-behavior 'nil
                       auto-completion-tab-key-behavior 'complete
                       auto-completion-complete-with-key-sequence nil
                       auto-completion-complete-with-key-sequence-delay 0.1
-                      auto-completion-private-snippets-directory nil)
+                      auto-completion-private-snippets-directory nil
+                      auto-completion-enable-snippets-in-popup t)
      erc
      autohotkey
      org
@@ -486,6 +488,8 @@ before packages are loaded. If you are unsure, you should try in setting them in
  (add-to-list 'auto-mode-alist '("\\cfg\\'" . cisco-router-mode))
  (add-to-list 'auto-mode-alist '("\\confg\\'" . cisco-router-mode))
 
+;;  Csv stuff
+(load-file "~/.emacs.d/private/local/csv-nav.el")
 
 
 
@@ -782,12 +786,12 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  '(elfeed-feeds
    (quote
-    ("https://www.networkworld.com/category/software-defined-networking/index.rss" "https://www.networkworld.com/category/lan-wan/index.rss" "http://www.trustedreviews.com/reviews/laptops/feed" "https://communities.cisco.com/community/feeds/announcements?community=4930" "https://communities.cisco.com/community/feeds/popularthreads?community=4930" "https://newsroom.cisco.com/data/syndication/rss2/headlinesAndNewsReleases_20.xml" "https://twitrss.me/twitter_user_to_rss/?user=emacsbot" "http://www.lightreading.com/rss_simple.asp" "http://jedelman.com/1/feed" "https://keepingitclassless.net/feed/" "https://emacs.cafe/feed.xml")))
+    ("https://www.networkworld.com/category/software-defined-networking/index.rss" "https://www.networkworld.com/category/lan-wan/index.rss" "http://www.trustedreviews.com/reviews/laptops/feed" "https://communities.cisco.com/community/feeds/announcements?community=4930" "https://communities.cisco.com/community/feeds/popularthreads?community=4930" "https://newsroom.cisco.com/data/syndication/rss2/headlinesAndNewsReleases_20.xml" "https://twitrss.me/twitter_user_to_rss/?user=emacsbot" "http://www.lightreading.com/rss_simple.asp" "http://jedelman.com/1/feed" "https://keepingitclassless.net/feed/" "https://emacs.cafe/feed.xml")) t)
  '(evil-want-Y-yank-to-eol nil)
  '(org-agenda-files (quote ("r:/Apps/Editorial/todo.org")))
  '(package-selected-packages
    (quote
-    (helm-gtags ggtags zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
+    (csv-nav helm-gtags ggtags zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
