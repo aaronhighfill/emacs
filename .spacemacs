@@ -38,7 +38,9 @@ values."
    dotspacemacs-configuration-layer-path '()
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
+   '(markdown
+     ansible
+     yaml
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
@@ -56,17 +58,18 @@ values."
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
-     ;; spell-checking
+      spell-checking
      ;; syntax-checking
      ;; version-control
      emacs-lisp
      auto-completion
      (auto-completion :variables
-                      auto-completion-return-key-behavior 'complete
+                      auto-completion-return-key-behavior 'nil
                       auto-completion-tab-key-behavior 'complete
-                      auto-completion-complete-with-key-sequence nil
+                      auto-completion-complete-with-key-sequence 'nil
                       auto-completion-complete-with-key-sequence-delay 0.1
-                      auto-completion-private-snippets-directory nil)
+                      auto-completion-private-snippets-directory 'nil
+                      auto-completion-enable-snippets-in-popup t)
      erc
      autohotkey
      org
@@ -107,6 +110,7 @@ values."
                                       bash-completion
                                       ssh
                                       ssh-agency
+                                      nov
                                       dired+
                                       w32-browser
                                       powershell
@@ -127,11 +131,12 @@ values."
                                       sourcerer-theme
                                       ;;ov-highlight
                                       writeroom-mode
+                                      beacon
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
-   dotspacemacs-excluded-packages '()
+   dotspacemacs-excluded-packages '(org-bullets)
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
    ;; `used-only' installs only explicitly used packages and deletes any unused
@@ -223,7 +228,7 @@ It should only modify the values of Spacemacs settings."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 12
+                               :size 33
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
@@ -430,6 +435,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
    (global-set-key (kbd "C-y") 'redo) ; 【Ctrl+y】; Microsoft Windows style
 ;; 
 (global-unset-key (kbd "C-/"))
+(global-set-key (kbd "C-w") 'kill-this-buffer) ; 【Ctrl+w】; Microsoft Windows style
 
 
 ;; org headers all the same size
@@ -480,8 +486,23 @@ before packages are loaded. If you are unsure, you should try in setting them in
  (add-to-list 'auto-mode-alist '("\\cfg\\'" . cisco-router-mode))
  (add-to-list 'auto-mode-alist '("\\confg\\'" . cisco-router-mode))
 
+(beacon-mode 1)
 
 
+;; (setq beacon-blink-duration 0)
+;; (setq beacon-blink-delay 0)
+;; (setq beacon-blink-when-window-scrolls t)
+;; (setq beacon-blink-when-window-changes t)
+;; (setq beacon-blink-when-point-moves t)
+
+
+
+;;calc bps  I don't think this works
+(setq math-additional-units
+      '((bit    nil           "Bit")
+        (byte   "8 * bit"     "Byte")
+        (bps    "bit / s"     "Bit per second"))
+      math-units-table nil)
 
 
 ;;highlighter
@@ -558,8 +579,9 @@ you should place your code here."
 ;;change junk file directory
   (setq open-junk-file-format "r:/apps/editorial/junk/%Y-%m%d-%H%M%S.")
 
+  ;; Save all org files every 30 seconds. Use file versioning if things go bad.
+  (run-with-idle-timer 30 t 'org-save-all-org-buffers)
 
-  
   ;; line numbers
 ;;  (global-linum-mode)
 
@@ -588,7 +610,7 @@ you should place your code here."
 
 
 
-
+  (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
 ;; (add-to-list 'erc-sasl-server-regexp-list "\\.freenode\\.net\\'")
 
   ;; reset undo like windows - this is not working
@@ -614,10 +636,10 @@ you should place your code here."
 ;; opted to just do nothing when C-xc is pressed.
   (global-unset-key (kbd "C-x C-c"))
 ;; opted to just do nothing when C-w is pressed
-  (global-unset-key (kbd "C-w"))
+;;  (global-unset-key (kbd "C-w"))
 
 
-  (global-unset-key (kbd "C-w"))
+;;  (global-unset-key (kbd "C-w"))
 
 
 ;;grep needs gnuwin32 grep and gnuewin32 coreutilites(ls) installed.
@@ -653,6 +675,11 @@ you should place your code here."
   ;; (sublimity-attractive-hide-modelines)
 
 
+  (add-to-list 'exec-path "C:/Program Files (x86)/Aspell/bin/")
+  (setq ispell-personal-dictionary "r:/apps/emacs/aspell/")
+  (setq ispell-program-name "aspell")
+  (require 'ispell)
+
 
   ;; Delete selection
   (delete-selection-mode t)
@@ -682,7 +709,6 @@ you should place your code here."
         '(
           "https://www.networkworld.com/category/software-defined-networking/index.rss"
           "https://www.networkworld.com/category/lan-wan/index.rss"
-          "http://www.trustedreviews.com/reviews/laptops/feed"
           "https://communities.cisco.com/community/feeds/announcements?community=4930"
           "https://communities.cisco.com/community/feeds/popularthreads?community=4930"
           "https://newsroom.cisco.com/data/syndication/rss2/headlinesAndNewsReleases_20.xml"
@@ -719,6 +745,35 @@ you should place your code here."
       (cua-rectangle-mark-mode arg)))
 
   (define-key cua-global-keymap (kbd "C-<return>") #'jpk/C-<return>)
+
+
+  ;; opposite of c-u c-spc  -- cursor history
+  (defmacro my-unpop-to-mark-advice ()
+    "Enable reversing direction with un/pop-to-mark."
+    `(defadvice ,(key-binding (kbd "C-SPC")) (around my-unpop-to-mark activate)
+       "Unpop-to-mark with negative arg"
+       (let* ((arg (ad-get-arg 0))
+              (num (prefix-numeric-value arg)))
+         (cond
+          ;; Enabled repeated un-pops with C-SPC
+          ((eq last-command 'unpop-to-mark-command)
+           (if (and arg (> num 0) (<= num 4))
+               ad-do-it ;; C-u C-SPC reverses back to normal direction
+             ;; Otherwise continue to un-pop
+             (setq this-command 'unpop-to-mark-command)
+             (unpop-to-mark-command)))
+          ;; Negative argument un-pops: C-- C-SPC
+          ((< num 0)
+           (setq this-command 'unpop-to-mark-command)
+           (unpop-to-mark-command))
+          (t
+           ad-do-it)))))
+  (my-unpop-to-mark-advice)
+
+
+
+
+
 
 
 
@@ -769,7 +824,7 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (engine-mode zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
+    (beacon seq zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
