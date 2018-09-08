@@ -57,7 +57,7 @@ values."
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
-     ;; spell-checking
+      spell-checking
      ;; syntax-checking
      ;; version-control
      emacs-lisp
@@ -65,9 +65,9 @@ values."
      (auto-completion :variables
                       auto-completion-return-key-behavior 'nil
                       auto-completion-tab-key-behavior 'complete
-                      auto-completion-complete-with-key-sequence nil
+                      auto-completion-complete-with-key-sequence 'nil
                       auto-completion-complete-with-key-sequence-delay 0.1
-                      auto-completion-private-snippets-directory nil
+                      auto-completion-private-snippets-directory 'nil
                       auto-completion-enable-snippets-in-popup t)
      erc
      autohotkey
@@ -109,6 +109,7 @@ values."
                                       bash-completion
                                       ssh
                                       ssh-agency
+                                      nov
                                       dired+
                                       w32-browser
                                       powershell
@@ -226,7 +227,7 @@ It should only modify the values of Spacemacs settings."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 12
+                               :size 33
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
@@ -439,6 +440,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
    (global-set-key (kbd "C-y") 'redo) ; 【Ctrl+y】; Microsoft Windows style
 ;; 
 (global-unset-key (kbd "C-/"))
+(global-set-key (kbd "C-w") 'kill-this-buffer) ; 【Ctrl+w】; Microsoft Windows style
 
 ;; remove this that is default bound to mouse-3
 (global-set-key [remap mouse-save-then-kill] 'ignore) 
@@ -493,10 +495,28 @@ before packages are loaded. If you are unsure, you should try in setting them in
  (add-to-list 'auto-mode-alist '("\\cfg\\'" . cisco-router-mode))
  (add-to-list 'auto-mode-alist '("\\confg\\'" . cisco-router-mode))
 
+
+(beacon-mode 1)
+
+
+;; (setq beacon-blink-duration 0)
+;; (setq beacon-blink-delay 0)
+;; (setq beacon-blink-when-window-scrolls t)
+;; (setq beacon-blink-when-window-changes t)
+;; (setq beacon-blink-when-point-moves t)
+
+
 ;;  Csv stuff
 (load-file "~/.emacs.d/private/local/csv-nav.el")
 
 
+
+;;calc bps  I don't think this works
+(setq math-additional-units
+      '((bit    nil           "Bit")
+        (byte   "8 * bit"     "Byte")
+        (bps    "bit / s"     "Bit per second"))
+      math-units-table nil)
 
 
 ;;highlighter
@@ -572,6 +592,9 @@ you should place your code here."
 ;;change junk file directory
   (setq open-junk-file-format "r:/apps/editorial/junk/%Y-%m%d-%H%M%S.")
 
+  ;; Save all org files every 30 seconds. Use file versioning if things go bad.
+  (run-with-idle-timer 30 t 'org-save-all-org-buffers)
+
   ;; line numbers
 ;;  (global-linum-mode)
 
@@ -607,7 +630,7 @@ you should place your code here."
 
 
 
-
+  (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
 ;; (add-to-list 'erc-sasl-server-regexp-list "\\.freenode\\.net\\'")
 
   ;; reset undo like windows - this is not working
@@ -633,10 +656,10 @@ you should place your code here."
 ;; opted to just do nothing when C-xc is pressed.
   (global-unset-key (kbd "C-x C-c"))
 ;; opted to just do nothing when C-w is pressed
-  (global-unset-key (kbd "C-w"))
+;;  (global-unset-key (kbd "C-w"))
 
 
-  (global-unset-key (kbd "C-w"))
+;;  (global-unset-key (kbd "C-w"))
 
   ;; like a screensaver
 ;;  (zone-when-idle 120)
@@ -673,6 +696,11 @@ you should place your code here."
   ;; (sublimity-attractive-hide-fringes)
   ;; (sublimity-attractive-hide-modelines)
 
+
+  (add-to-list 'exec-path "C:/Program Files (x86)/Aspell/bin/")
+  (setq ispell-personal-dictionary "r:/apps/emacs/aspell/")
+  (setq ispell-program-name "aspell")
+  (require 'ispell)
 
 
   ;; Delete selection
@@ -735,6 +763,35 @@ you should place your code here."
   (define-key cua-global-keymap (kbd "C-<return>") #'jpk/C-<return>)
 
 
+  ;; opposite of c-u c-spc  -- cursor history
+  (defmacro my-unpop-to-mark-advice ()
+    "Enable reversing direction with un/pop-to-mark."
+    `(defadvice ,(key-binding (kbd "C-SPC")) (around my-unpop-to-mark activate)
+       "Unpop-to-mark with negative arg"
+       (let* ((arg (ad-get-arg 0))
+              (num (prefix-numeric-value arg)))
+         (cond
+          ;; Enabled repeated un-pops with C-SPC
+          ((eq last-command 'unpop-to-mark-command)
+           (if (and arg (> num 0) (<= num 4))
+               ad-do-it ;; C-u C-SPC reverses back to normal direction
+             ;; Otherwise continue to un-pop
+             (setq this-command 'unpop-to-mark-command)
+             (unpop-to-mark-command)))
+          ;; Negative argument un-pops: C-- C-SPC
+          ((< num 0)
+           (setq this-command 'unpop-to-mark-command)
+           (unpop-to-mark-command))
+          (t
+           ad-do-it)))))
+  (my-unpop-to-mark-advice)
+
+
+
+
+
+
+
 
 ;; for per PC settings.
   (load-file "~/.emacs.d/private/local/private.el")
@@ -761,6 +818,8 @@ you should place your code here."
       (message "There is no buffer named \"*Occur*\".")))
 
 
+
+;;  (setenv "GIT_ASKPASS" "git-gui--askpass")
 
 
 
