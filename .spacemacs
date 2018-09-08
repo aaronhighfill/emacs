@@ -820,7 +820,7 @@ you should place your code here."
 
 
 
-
+  (setenv "GIT_ASKPASS" "git-gui--askpass")
 
 
   )
