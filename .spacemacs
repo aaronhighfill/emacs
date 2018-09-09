@@ -110,11 +110,11 @@ values."
                                       ssh
                                       ssh-agency
                                       nov
-                                      dired+
+                                      ;;dired+
                                       w32-browser
                                       powershell
                                       ;;org-drill
-                                      irfc
+                                      ;;irfc
                                       restclient
                                       restclient-helm
                                       restclient-test
@@ -489,6 +489,12 @@ before packages are loaded. If you are unsure, you should try in setting them in
   ;;        (let* ((fn-list (dired-get-marked-files nil arg)))
   ;;          (mapc 'find-file fn-list)))))
 
+  ;; If you want c in Dired mode to do what C-x C-f
+  ;;  (define-key dired-mode-map "c" 'find-file)
+
+
+
+
 ;;  Cisco stuff
 (load-file "~/.emacs.d/private/local/cisco-router-mode.el")
  (add-to-list 'auto-mode-alist '("\\.iosconfig.txt\\'" . cisco-router-mode))
@@ -736,8 +742,6 @@ you should place your code here."
 ;;  (setq default-directory (getenv "HOME"))
 ;;  This is done by the shortcut now. 
 
-;; If you want c in Dired mode to do what C-x C-f
-  (define-key dired-mode-map "c" 'find-file)
 
   ;; Scroll behavior
 ;;  (setq scroll-error-top-bottom t)
@@ -818,6 +822,7 @@ you should place your code here."
       (message "There is no buffer named \"*Occur*\".")))
 
 
+  (beacon-mode t)
 
 ;;  (setenv "GIT_ASKPASS" "git-gui--askpass")
 
