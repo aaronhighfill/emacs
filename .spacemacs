@@ -163,6 +163,12 @@ It should only modify the values of Spacemacs settings."
    ;; Maximum allowed time in seconds to contact an ELPA repository.
    ;; (default 5)
    dotspacemacs-elpa-timeout 5
+   ;; Set `gc-cons-threshold' and `gc-cons-percentage' when startup finishes.
+   ;; This is an advanced option and should not be changed unless you suspect
+   ;; performance issues due to garbage collection operations.
+   ;; (default '(100000000 0.1))
+   dotspacemacs-gc-cons '(100000000 0.1)
+
    ;; If non-nil then Spacelpa repository is the primary source to install
    ;; a locked version of packages. If nil then Spacemacs will install the lastest
    ;; version of packages from MELPA. (default nil)
@@ -221,6 +227,14 @@ It should only modify the values of Spacemacs settings."
                          zenburn
                          hc-zenburn
                          )
+   ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
+   ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
+   ;; first three are spaceline themes. `doom' is the doom-emacs mode-line.
+   ;; `vanilla' is default Emacs mode-line. `custom' is a user defined themes,
+   ;; refer to the DOCUMENTATION.org for more info on how to create your own
+   ;; spaceline theme. Value can be a symbol or list with additional properties.
+   ;; (default '(spacemacs :separator wave :separator-scale 1.5))
+   dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1.5)
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
    dotspacemacs-colorize-cursor-according-to-state t
@@ -442,6 +456,10 @@ before packages are loaded. If you are unsure, you should try in setting them in
 (global-unset-key (kbd "C-/"))
 (global-set-key (kbd "C-w") 'kill-this-buffer) ; 【Ctrl+w】; Microsoft Windows style
 
+;; Persistant undo
+(setq undo-tree-auto-save-history t)
+
+
 ;; remove this that is default bound to mouse-3
 (global-set-key [remap mouse-save-then-kill] 'ignore) 
 
@@ -502,14 +520,6 @@ before packages are loaded. If you are unsure, you should try in setting them in
  (add-to-list 'auto-mode-alist '("\\confg\\'" . cisco-router-mode))
 
 
-(beacon-mode 1)
-
-
-;; (setq beacon-blink-duration 0)
-;; (setq beacon-blink-delay 0)
-;; (setq beacon-blink-when-window-scrolls t)
-;; (setq beacon-blink-when-window-changes t)
-;; (setq beacon-blink-when-point-moves t)
 
 
 ;;  Csv stuff
@@ -821,15 +831,18 @@ you should place your code here."
             (forward-line 1)))
       (message "There is no buffer named \"*Occur*\".")))
 
-
+;; Cursor bling
   (beacon-mode t)
+  ;; (setq beacon-blink-duration 0)
+  ;; (setq beacon-blink-delay 0)
+  ;; (setq beacon-blink-when-window-scrolls t)
+  ;; (setq beacon-blink-when-window-changes t)
+  ;; (setq beacon-blink-when-point-moves t)
 
-;;  (setenv "GIT_ASKPASS" "git-gui--askpass")
 
+ 
 
-
-
-  )
+)
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
