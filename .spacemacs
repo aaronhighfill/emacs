@@ -48,7 +48,7 @@ values."
      ;; auto-completion
      ;; better-defaults
      emacs-lisp
-;;     pdf-tools
+     ;;pdf-tools
      ;; git
      ;; markdown
      neotree
@@ -57,8 +57,8 @@ values."
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
-      spell-checking
-     ;; syntax-checking
+     spell-checking
+     syntax-checking
      ;; version-control
      emacs-lisp
      auto-completion
@@ -76,8 +76,6 @@ values."
      html
      javascript
      xkcd
-     spell-checking
-     syntax-checking
      ranger
      shell
      erc
@@ -523,8 +521,9 @@ before packages are loaded. If you are unsure, you should try in setting them in
 
 
 ;;  Csv stuff
-(load-file "~/.emacs.d/private/local/csv-nav.el")
-
+(when (file-exists-p "~/.emacs.d/private/local/csv-nav.el")
+  (load-file "~/.emacs.d/private/local/csv-nav.el")
+  )
 
 
 ;;calc bps  I don't think this works
@@ -713,10 +712,15 @@ you should place your code here."
   ;; (sublimity-attractive-hide-modelines)
 
 
-  (add-to-list 'exec-path "C:/Program Files (x86)/Aspell/bin/")
-  (setq ispell-personal-dictionary "r:/apps/emacs/aspell/")
-  (setq ispell-program-name "aspell")
-  (require 'ispell)
+
+
+
+
+
+  
+
+
+
 
 
   ;; Delete selection
@@ -806,12 +810,6 @@ you should place your code here."
 
 
 
-
-;; for per PC settings.
-  (load-file "~/.emacs.d/private/local/private.el")
-
-
-
 ;; This cleans up Occur mode when called
   (defun occur-mode-clean-buffer ()
     "Removes all commentary from the *Occur* buffer, leaving the
@@ -840,7 +838,41 @@ you should place your code here."
   ;; (setq beacon-blink-when-point-moves t)
 
 
- 
+
+  ;; And finally for per PC settings.
+  (load-file "~/.emacs.d/private/local/private.el")
+
+
+
+  ;; Hunspell for spelling added to private.el for installations that have it.
+  ;; (add-to-list 'exec-path "C:\\Program Files (x86)\\hunspell\\bin")
+  ;; (setq ispell-program-name "hunspell")
+  ;; (use-package ispell
+  ;;   :init
+  ;;   (setq ispell-dictionary-alist 
+  ;;         '(
+  ;;           (nil
+  ;;            "[[:alpha:]]"
+  ;;            "[^[:alpha:]]"
+  ;;            "[']"
+  ;;            t
+  ;;            ("-d" "default" "-p" "C:\\Program Files (x86)\\hunspell\\share\\hunspell")
+  ;;            nil
+  ;;            iso-8859-1)
+
+  ;;           ("en_GB"
+  ;;            "[[:alpha:]]"
+  ;;            "[^[:alpha:]]"
+  ;;            "[']"
+  ;;            t
+  ;;            ("-d" "en_GB" "-p" "C:\\Program Files (x86)\\hunspell\\share\\hunspell\\en_GB")
+  ;;            nil
+  ;;            iso-8859-1)
+  ;;           ))
+  ;;   (setq ispell-dictionary "en_GB")
+  ;;   )
+
+
 
 )
 
