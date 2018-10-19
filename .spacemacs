@@ -38,7 +38,9 @@ values."
    dotspacemacs-configuration-layer-path '()
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(windows-scripts
+   '(ansible
+     yaml
+     windows-scripts
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
@@ -57,8 +59,8 @@ values."
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
-     spell-checking
-     syntax-checking
+     ;; spell-checking                                disabled 20181019
+     ;; syntax-checking                                disabled 20181019
      ;; version-control
      emacs-lisp
      auto-completion
@@ -129,6 +131,7 @@ values."
                                       ;;ov-highlight
                                       writeroom-mode
                                       beacon
+                                      es-mode
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -239,7 +242,7 @@ It should only modify the values of Spacemacs settings."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 33
+                               :size 12
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
@@ -439,10 +442,15 @@ before packages are loaded. If you are unsure, you should try in setting them in
   (setq org-use-tag-inheritance nil)
 (setq org-journal-dir "r:/Apps/Editorial/logbook/")
 
+;; this isn't working
+;;(setq org-default-notes-file (concat org-directory "r:/Apps/Editorial/inbox.org"))
 
 ;; Org mode conflicts disuputed keys.
  (setq org-replace-disputed-keys t)
 
+ ;; remote file will be kept without testing if they still exists https://stackoverflow.com/questions/2068697/emacs-is-slow-opening-recent-files
+ ;; this may not be working?
+ (setq recentf-keep '(file-remote-p file-readable-p))
 
 ;; undoing keys
 (setq evil-toggle-key "C-`")
@@ -626,6 +634,10 @@ you should place your code here."
 
   ;; add clone indirect buffer.
   (evil-leader/set-key (kbd "j c") 'clone-indirect-buffer-other-window)
+
+  ;; org refile on org menu
+  (evil-leader/set-key (kbd "a o r") 'org-refile)
+
 
 
 
@@ -821,9 +833,56 @@ Does not set point.  Does nothing if mark ring is empty."
   (my-unpop-to-mark-advice)
 
 
+  ;; transform to csv from org-table. Thanks Joe Exactly what I needed.
+  ;; https://stackoverflow.com/a/38277039/4581426
+
+  (defun org-table-transform-in-place ()
+  "Just like `ORG-TABLE-EXPORT', but instead of exporting to a
+  file, replace table with data formatted according to user's
+  choice, where the format choices are the same as
+  org-table-export."
+  (interactive)
+  (unless (org-at-table-p) (user-error "No table at point"))
+  (org-table-align)
+  (let* ((format
+      (completing-read "Transform table function: "
+               '("orgtbl-to-tsv" "orgtbl-to-csv" "orgtbl-to-latex"
+                 "orgtbl-to-html" "orgtbl-to-generic"
+                 "orgtbl-to-texinfo" "orgtbl-to-orgtbl"
+                 "orgtbl-to-unicode")))
+     (curr-point (point)))
+    (if (string-match "\\([^ \t\r\n]+\\)\\( +.*\\)?" format)
+    (let ((transform (intern (match-string 1 format)))
+          (params (and (match-end 2)
+               (read (concat "(" (match-string 2 format) ")"))))
+          (table (org-table-to-lisp
+              (buffer-substring-no-properties
+               (org-table-begin) (org-table-end)))))
+      (unless (fboundp transform)
+        (user-error "No such transformation function %s" transform))
+      (save-restriction
+        (with-output-to-string
+          (delete-region (org-table-begin) (org-table-end))
+          (insert (funcall transform table params) "\n")))
+      (goto-char curr-point)
+      (beginning-of-line)
+      (message "Tranformation done."))
+      (user-error "Table export format invalid"))))
+
+;;  (define-key org-mode-map (kbd "\C-x |") 'org-table-transform-in-place)
+
+;; Setting target for org refiling.
+  (setq org-refile-targets '(
+                             ("meetings.org" :maxlevel . 1)
+                             ("todo.org" :maxlevel . 1)
+                             ))
 
 
 
+
+
+  ;; (persistent-scratch-setup-default)
+  ;; (global-set-key (kbd "<scroll>") 'scroll-lock-mode)
 
 
 ;; This cleans up Occur mode when called
@@ -930,7 +989,7 @@ This function is called at the very end of Spacemacs initialization."
  '(org-agenda-files (quote ("r:/Apps/Editorial/todo.org")))
  '(package-selected-packages
    (quote
-    (pdf-tools tablist zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
+    (yaml-mode jinja2-mode es-mode spark company-ansible ansible-doc ansible zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
