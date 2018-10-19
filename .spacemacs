@@ -107,8 +107,8 @@ values."
                                       hide-lines
                                       ;restart-emacs
                                       bash-completion
-                                      ssh
-                                      ssh-agency
+;;                                      ssh
+;;                                      ssh-agency
                                       nov
                                       ;;dired+
                                       w32-browser
