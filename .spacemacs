@@ -48,7 +48,7 @@ values."
      ;; auto-completion
      ;; better-defaults
      emacs-lisp
-     ;;pdf-tools
+     pdf
      ;; git
      ;; markdown
      neotree
@@ -448,7 +448,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
 (setq evil-toggle-key "C-`")
 (defalias 'redo 'undo-tree-redo)
 (global-set-key (kbd "C-z") 'undo) ; 【Ctrl+z】
-(global-set-key (kbd "C-S-z") 'redo) ; 【Ctrl+Shift+z】;  Mac style
+;;(global-set-key (kbd "C-S-z") 'redo) ; 【Ctrl+Shift+z】;  Mac style
    (global-set-key (kbd "C-y") 'redo) ; 【Ctrl+y】; Microsoft Windows style
 ;; 
 (global-unset-key (kbd "C-/"))
@@ -480,6 +480,9 @@ before packages are loaded. If you are unsure, you should try in setting them in
   ;; Turn off linum-mode for org-mode and text-mode
   (add-hook 'evil-org-mode-hook (lambda () (linum-mode -1)))
   (add-hook 'text-mode-hook (lambda () (linum-mode -1)))
+
+  ;; Turn off c-y yanking for org-mode
+  (add-hook 'evil-org-mode-hook (lambda () (local-unset-key (kbd "C-y"))))
 
   ;;(setq scroll-error-top-bottom t)
 
@@ -540,9 +543,14 @@ before packages are loaded. If you are unsure, you should try in setting them in
 ;;  (load-file "~/.emacs.d/private/local/ov-highlight.el")
 ;;  (load-file "~/.emacs.d/private/local/cisco-router-mode.el")
 
-;; highilght hydra
-;;(evil-leader/set-key (kbd "x h") 'ov-highlight/body)
-
+;; highlight hydra - work in progress
+(evil-leader/set-key (kbd "x h h") 'highlight-regexp)
+(evil-leader/set-key (kbd "x h u") 'unhighlight-regexp)
+(evil-leader/set-key (kbd "x h l") 'highlight-lines-matching-regexp)
+(evil-leader/set-key (kbd "x h .") 'highlight-symbol-at-point)
+(evil-leader/set-key (kbd "x h c") 'highlight-changes-mode)
+;;(evil-leader/set-key (kbd "x h c . n") 'highlight-changes-next-change)
+;;(evil-leader/set-key (kbd "x h c . p") 'highlight-changes-previous-change)
 
   ;;custom ediff macros
   (fset 'ediff-append-buff1-line-reg-a
@@ -561,36 +569,12 @@ before packages are loaded. If you are unsure, you should try in setting them in
   (global-set-key (kbd "C-x r 2") 'ediff-append-buff2-line-reg-a)
 
 
-;; Smoother scrolling 26.1
-(pixel-scroll-mode)
+  ;; Smoother scrolling 26.1
+  (pixel-scroll-mode)
 
-
-   ;; ranger shortcut
- ;; (global-set-key (kbd "M-m a r") 'ranger) 
-
-;; Move Line Up and down
+  ;; Move Line Up and down
    (global-set-key [M-up] 'move-text-up)
    (global-set-key [M-down] 'move-text-down)
-
-
-;; 10 pt consolas - source code now.
-;;  (set-face-attribute 'default nil
-  ;;                  :family "Consolas" :height 100)
-
-;; CUA-mode no C-<return> for cua-rectangel-mark-mode in org mode.
-
-;;(defun jpk/C-<return> (&optional arg)
-;;  (interactive "P")
-;;  (if (eq major-mode 'org-mode)
- ;;     (org-insert-heading-respect-content arg)
- ;;   (cua-rectangle-mark-mode arg)))
-
-;;(define-key cua-global-keymap (kbd "C-<return>") #'jpk/C-<return>)
-
-
-
-
-
 
 
   )
@@ -693,7 +677,20 @@ you should place your code here."
   (setq mouse-wheel-scroll-amount '(3 ((shift) . 1) ((control) .nil)))
   (setq mouse-wheel-progressive-speed nil)
 
-  (global-set-key [C-backspace] 'evil-delete-backward-word)
+
+
+
+  (defun kill-region-or-backward-word ()
+    "Kill selected region if region is active. Otherwise kill a backward word."
+    (interactive)
+    (if (region-active-p)
+	      (kill-region (region-beginning) (region-end))
+	    (backward-kill-word 1)))
+  (global-set-key [C-backspace] 'kill-region-or-backward-word)
+
+  ;  (global-set-key [C-backspace] 'evil-delete-backward-word)
+
+
 
 
   ;; Sublimity
@@ -780,8 +777,27 @@ you should place your code here."
 
   (define-key cua-global-keymap (kbd "C-<return>") #'jpk/C-<return>)
 
-
   ;; opposite of c-u c-spc  -- cursor history
+  ;; https://stackoverflow.com/questions/3393834/how-to-move-forward-and-backward-in-emacs-mark-ring
+  ;; Thanks scottfrazer and phils
+
+  (defun unpop-to-mark-command ()
+    "Unpop off mark ring into the buffer's actual mark.
+Does not set point.  Does nothing if mark ring is empty."
+    (interactive)
+    (let ((num-times (if (equal last-command 'pop-to-mark-command) 2
+                       (if (equal last-command 'unpop-to-mark-command) 1
+                         (error "Previous command was not a (un)pop-to-mark-command")))))
+      (dotimes (x num-times)
+        (when mark-ring
+          (setq mark-ring (cons (copy-marker (mark-marker)) mark-ring))
+          (set-marker (mark-marker) (+ 0 (car (last mark-ring))) (current-buffer))
+          (when (null (mark t)) (ding))
+          (setq mark-ring (nbutlast mark-ring))
+          (goto-char (mark t)))
+        (deactivate-mark))))
+
+
   (defmacro my-unpop-to-mark-advice ()
     "Enable reversing direction with un/pop-to-mark."
     `(defadvice ,(key-binding (kbd "C-SPC")) (around my-unpop-to-mark activate)
@@ -911,9 +927,10 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(org-agenda-files (quote ("r:/Apps/Editorial/todo.org")))
  '(package-selected-packages
    (quote
-    (nov esxml zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
+    (pdf-tools tablist zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
