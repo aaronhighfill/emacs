@@ -482,13 +482,6 @@ before packages are loaded. If you are unsure, you should try in setting them in
 (when (not (eq (last buffer-undo-list) 'undo-tree-canary))
   (setq buffer-undo-list (append buffer-undo-list '(nil undo-tree-canary))))
 
-
-;; remove this that is default bound to mouse-3
-(global-set-key [remap mouse-save-then-kill] 'ignore)
-
-;;https://emacs.stackexchange.com/questions/33510/unicode-txt-slowness  org slowness and general slowness
-(setq inhibit-compacting-font-caches t)
-
 ;;https://hk.saowen.com/a/dff3ead380819974dd54404f4b4e8930bb1a2c06e00ca3262086093df2fca97c
 (advice-add 'undo-tree-load-history-hook :after (lambda () (setq buffer-undo-list '(nil undo-tree-canary))))
 
@@ -496,8 +489,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
 (setq undo-tree-history-directory-alist '(("." . "r:/apps/emacs/undo/")))
 
 ;; remove this that is default bound to mouse-3
-(global-set-key [remap mouse-save-then-kill] 'ignore) 
-
+(global-set-key [remap mouse-save-then-kill] 'ignore)
 
 ;;https://emacs.stackexchange.com/questions/33510/unicode-txt-slowness  org slowness and general slowness
 (setq inhibit-compacting-font-caches t)
