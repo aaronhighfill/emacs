@@ -241,8 +241,8 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("Source Code Pro"
-                               :size 33
+   dotspacemacs-default-font '("Hack"
+                               :size 13
                                :weight normal
                                :width normal
                                :powerline-scale 1.1)
@@ -533,7 +533,16 @@ before packages are loaded. If you are unsure, you should try in setting them in
 
 
 ;;  Cisco stuff
-(load-file "~/.emacs.d/private/local/cisco-router-mode.el")
+  (let ((personal-settings "~/.emacs.d/private/local/cisco-router-mode.el"))
+    (when (file-exists-p personal-settings)
+      (load-file personal-settings))
+    )
+
+
+;(load-file "~/.emacs.d/private/local/cisco-router-mode.el")
+
+
+
  (add-to-list 'auto-mode-alist '("\\.iosconfig.txt\\'" . cisco-router-mode))
  (add-to-list 'auto-mode-alist '("\\cfg\\'" . cisco-router-mode))
  (add-to-list 'auto-mode-alist '("\\confg\\'" . cisco-router-mode))
@@ -542,9 +551,15 @@ before packages are loaded. If you are unsure, you should try in setting them in
 
 
 ;;  Csv stuff
-(when (file-exists-p "~/.emacs.d/private/local/csv-nav.el")
-  (load-file "~/.emacs.d/private/local/csv-nav.el")
+;(when (file-exists-p "~/.emacs.d/private/local/csv-nav.el")
+;  (load-file "~/.emacs.d/private/local/csv-nav.el")
+;  )
+
+ (let ((personal-settings "~/.emacs.d/private/local/csv-nav.el"))
+  (when (file-exists-p personal-settings)
+    (load-file personal-settings))
   )
+
 
 
 ;;calc bps  I don't think this works
@@ -555,11 +570,8 @@ before packages are loaded. If you are unsure, you should try in setting them in
       math-units-table nil)
 
 
-;;highlighter
+;;highlighter - work in porgress
 ;;(load-file "~/.emacs.d/private/local/ov-highlight.el")
-
-;;  (load-file "~/.emacs.d/private/local/ov-highlight.el")
-;;  (load-file "~/.emacs.d/private/local/cisco-router-mode.el")
 
 ;; highlight hydra - work in progress
 (evil-leader/set-key (kbd "x h h") 'highlight-regexp)
@@ -925,7 +937,13 @@ Does not set point.  Does nothing if mark ring is empty."
 
 
   ;; And finally for per PC settings.
-  (load-file "~/.emacs.d/private/local/private.el")
+
+  (let ((personal-settings "~/.emacs.d/private/local/private.el"))
+    (when (file-exists-p personal-settings)
+      (load-file personal-settings))
+    )
+
+  ;(load-file "~/.emacs.d/private/local/private.el")
 
 
 
@@ -983,19 +1001,13 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(evil-want-Y-yank-to-eol nil)
- '(org-agenda-files (quote ("r:/Apps/Editorial/todo.org")))
  '(package-selected-packages
    (quote
-    (pdf-tools tablist zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
+    (emojify yaml-mode pdf-tools tablist jinja2-mode es-mode spark company-ansible ansible-doc ansible zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-level-1 ((t (:inherit default :foreground "antique white"))))
- '(org-level-5 ((t (:inherit outline-3 :foreground "#2aa198" :height 1.3))))
- '(org-level-6 ((t (:inherit outline-3 :foreground "#859900" :height 1.3))))
- '(org-level-7 ((t (:inherit outline-3 :foreground "#dc322f" :height 1.3))))
- '(org-level-8 ((t (:inherit outline-3 :foreground "#268bd2" :height 1.3)))))
+ '(org-level-1 ((t (:inherit default :foreground "antique white")))))
 )
