@@ -242,8 +242,7 @@ It should only modify the values of Spacemacs settings."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 33
-                               :weight normal
+                               :size 12                               :weight normal
                                :width normal
                                :powerline-scale 1.1)
    ;;The leader key (default "SPC")
@@ -437,6 +436,11 @@ before packages are loaded. If you are unsure, you should try in setting them in
   (setq solarized-height-plus-2 1.0)
   (setq solarized-height-plus-3 1.0)
   (setq solarized-height-plus-4 1.0)
+  (setq solarized-height-plus-5 1.0)
+  (setq solarized-height-plus-6 1.0)
+  (setq solarized-height-plus-7 1.0)
+  (setq solarized-height-plus-8 1.0)
+  (setq solarized-height-plus-9 1.0)
 
 
 
