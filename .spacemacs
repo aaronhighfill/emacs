@@ -498,6 +498,8 @@ before packages are loaded. If you are unsure, you should try in setting them in
 ;;https://emacs.stackexchange.com/questions/33510/unicode-txt-slowness  org slowness and general slowness
 (setq inhibit-compacting-font-caches t)
 
+;line spacing needed for some fonts.
+(setq-default line-spacing 7)
 
   ;; Turn off linum-mode for org-mode and text-mode
   (add-hook 'evil-org-mode-hook (lambda () (linum-mode -1)))
