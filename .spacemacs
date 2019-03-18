@@ -672,7 +672,8 @@ you should place your code here."
   (evil-leader/set-key "TAB" 'ebs-switch-buffer)
 
 
-  (load-file "~/.emacs.d/private/local/ebs.el")
+;;  (load-file "~/.emacs.d/private/local/ebs.el")
+  (load-file "r:/apps/emacs/private/local/ebs.el")
   (ebs-initialize)
 
 
