@@ -131,6 +131,7 @@ values."
                                       writeroom-mode
                                       beacon
                                       es-mode
+                                      persistent-scratch
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -441,7 +442,8 @@ before packages are loaded. If you are unsure, you should try in setting them in
   (setq solarized-height-plus-8 1.0)
   (setq solarized-height-plus-9 1.0)
 
-
+;; use org speed keys
+  (setq org-use-speed-commands t)
 
 ;;(setq mouse-drag-copy-region t)
 
@@ -498,7 +500,9 @@ before packages are loaded. If you are unsure, you should try in setting them in
 (setq inhibit-compacting-font-caches t)
 
 ;line spacing needed for some fonts.
-(setq-default line-spacing 11)
+
+(setq-default line-spacing 2)
+
 
   ;; Turn off linum-mode for org-mode and text-mode
   (add-hook 'evil-org-mode-hook (lambda () (linum-mode -1)))
@@ -604,8 +608,8 @@ before packages are loaded. If you are unsure, you should try in setting them in
   (global-set-key (kbd "C-x r 2") 'ediff-append-buff2-line-reg-a)
 
 
-  ;; Smoother scrolling 26.1
-  (pixel-scroll-mode)
+  ;; Smoother scrolling 26.1 - disabled it wasn't really that smooth
+;;  (pixel-scroll-mode)
 
   ;; Move Line Up and down
    (global-set-key [M-up] 'move-text-up)
@@ -665,7 +669,12 @@ you should place your code here."
   ;; org refile on org menu
   (evil-leader/set-key (kbd "a o r") 'org-refile)
 
+  ;; ebs
+  (evil-leader/set-key "TAB" 'ebs-switch-buffer)
 
+
+  (load-file "~/.emacs.d/private/local/ebs.el")
+  (ebs-initialize)
 
 
   (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
@@ -782,7 +791,6 @@ you should place your code here."
 
 ;; shift select in org mode outside current context.
   (setq org-support-shift-select t)
-
 
 
   ;; rss feeds
@@ -912,7 +920,7 @@ Does not set point.  Does nothing if mark ring is empty."
 
 
 
-  ;; (persistent-scratch-setup-default)
+
   ;; (global-set-key (kbd "<scroll>") 'scroll-lock-mode)
 
 
@@ -935,8 +943,8 @@ Does not set point.  Does nothing if mark ring is empty."
             (forward-line 1)))
       (message "There is no buffer named \"*Occur*\".")))
 
-;; Cursor bling
-  (beacon-mode t)
+;; Cursor bling - disabled for now. thought it might be causing trouble
+;;  (beacon-mode t) 
   ;; (setq beacon-blink-duration 0)
   ;; (setq beacon-blink-delay 0)
   ;; (setq beacon-blink-when-window-scrolls t)
@@ -984,13 +992,7 @@ Does not set point.  Does nothing if mark ring is empty."
   ;;   (setq ispell-dictionary "en_GB")
   ;;   )
 
-;;  (defvar erc-sasl-use-sasl t
-;;    "Set to nil to disable SASL auth")
- (require 'erc-sasl)
-;;(require 'erc)
-  (add-to-list 'erc-sasl-server-regexp-list "irc\\.freenode\\.net")
-  ;; e.g. irc\\.freenode\\.net, or .* for any host
-
+  (persistent-scratch-setup-default)
 
 )
 
@@ -1016,10 +1018,12 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-agenda-files (quote ("r:/Apps/Editorial/todo.org")))
+ '(org-agenda-files
+   (quote
+    ("r:/Apps/Editorial/todo.org" "r:/Apps/Editorial/inbox.org")))
  '(package-selected-packages
    (quote
-    (emojify yaml-mode pdf-tools tablist jinja2-mode es-mode spark company-ansible ansible-doc ansible zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async)))
+    (sublimity omni-scratch zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async)))
  '(paradox-github-token t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
