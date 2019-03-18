@@ -71,7 +71,7 @@ values."
                       auto-completion-complete-with-key-sequence-delay 0.0
                       auto-completion-private-snippets-directory 'nil
                       auto-completion-enable-snippets-in-popup t)
-     erc
+;;     erc
      autohotkey
      org
      python
@@ -80,7 +80,6 @@ values."
      xkcd
      ranger
      shell
-     erc
 ;;     mylayer
      git
      search-engine
@@ -121,7 +120,7 @@ values."
                                       monokai-theme
                                       ;;color-theme-solarized
                                       solarized-theme
-                                      sasl
+;;                                      sasl
                                       erc-sasl
                                       ov
                                       hydra
@@ -243,7 +242,7 @@ It should only modify the values of Spacemacs settings."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Hack"
-                               :size 13
+                               :size 33
                                :width normal
                                :powerline-scale 1.1)
    ;;The leader key (default "SPC")
@@ -455,7 +454,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
 ;;(add-to-list 'erc-sasl-server-regexp-list "\\.freenode\\.net\\'")
 ;;(add-to-list 'erc-sasl-server-regexp-list "\.freenode\.net") ;; e.g. irc\\.freenode\\.net, or .* for any host
 
-;; (setq erc-enable-sasl-auth t)
+
 
   (setq org-M-RET-may-split-line nil)
   (setq org-use-tag-inheritance nil)
@@ -501,7 +500,9 @@ before packages are loaded. If you are unsure, you should try in setting them in
 (setq inhibit-compacting-font-caches t)
 
 ;line spacing needed for some fonts.
+
 (setq-default line-spacing 2)
+
 
   ;; Turn off linum-mode for org-mode and text-mode
   (add-hook 'evil-org-mode-hook (lambda () (linum-mode -1)))
@@ -712,8 +713,12 @@ you should place your code here."
 ;;  (zone-when-idle 120)
 
 ;;grep needs gnuwin32 grep and gnuewin32 coreutilites(ls) installed.
-  (setq find-program "C:\\\"Program Files (x86)\"\\GnuWin32\\bin\\find.exe"
-       grep-program "C:\\\"Program Files (x86)\"\\GnuWin32\\bin\\grep.exe")
+;;  (setq find-program "C:\\\"Program Files (x86)\"\\GnuWin32\\bin\\find.exe"
+;;       grep-program "C:\\\"Program Files (x86)\"\\GnuWin32\\bin\\grep.exe")
+
+  ;;C:\msys64\usr\bin
+  (setq find-program "C:\\msys64\\usr\\bin\\find.exe"
+        grep-program "C:\\msys64\\usr\\bin\\find.exe")
 
   ;;Make instance a server
  (server-start)
