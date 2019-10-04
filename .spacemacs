@@ -459,6 +459,9 @@ before packages are loaded. If you are unsure, you should try in setting them in
 ;; Org markup charactors hide
   (setq org-hide-emphasis-markers t)
 
+  ;; don't  show org markup symbols.
+  (setq org-hide-emphasis-markers t)
+
 ;;(setq mouse-drag-copy-region t)
 
 ;;(require 'org-drill)
@@ -698,6 +701,9 @@ you should place your code here."
 
   ;; ebs
   (evil-leader/set-key "TAB" 'ebs-switch-buffer)
+
+  ;; org searching
+  (evil-leader/set-key (kbd "s o r") 'helm-org-rifle)
 
 ;;  (load-file "~/.emacs.d/private/local/ebs.el")
   (load-file "r:/apps/emacs/private/local/ebs.el")
@@ -1050,6 +1056,10 @@ Does not set point.  Does nothing if mark ring is empty."
   ;;   )
 
   (persistent-scratch-setup-default)
+
+  ;; disable diff-buffer-with-file in favor of vdiff-current-file
+  (put 'diff-buffer-with-file 'disabled
+       "It's better to use 'vdiff-current-file' .\n")
 
 )
 
