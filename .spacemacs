@@ -243,7 +243,7 @@ It should only modify the values of Spacemacs settings."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Hack"
-                               :size 33
+                               :size 12
                                :width normal
                                :powerline-scale 1.1)
    ;;The leader key (default "SPC")
@@ -1060,6 +1060,13 @@ Does not set point.  Does nothing if mark ring is empty."
   ;; disable diff-buffer-with-file in favor of vdiff-current-file
   (put 'diff-buffer-with-file 'disabled
        "It's better to use 'vdiff-current-file' .\n")
+
+
+
+
+
+
+
 
 )
 
