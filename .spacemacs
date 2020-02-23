@@ -150,6 +150,9 @@ values."
                                       helm-org-rifle
                                       undo-fu
                                       undo-fu-session
+                                      indent-tools
+                                      highlight-indent-guides
+                                      helm-org
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -681,6 +684,22 @@ explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
 
 
+  (defun ask-before-closing ()
+    "Close only if y was pressed."
+    (interactive)
+    (if (y-or-n-p (format "Are you sure you want to close Spacemacs? "))
+        (spacemacs/prompt-kill-emacs)                                                                                            
+      (message "Canceled frame close")))
+
+  (when (daemonp)
+    (global-set-key (kbd "C-x C-c") 'ask-before-closing))
+
+
+  (evil-leader/set-key (kbd "q q") 'ask-before-closing)
+
+
+
+
 ;;change junk file directory
   (setq open-junk-file-format "r:/apps/editorial/junk/%Y-%m%d-%H%M%S.")
 
@@ -1209,9 +1228,61 @@ Version 2015-12-08"
     (delete-region (region-beginning) (region-end)))
   (insert-register ?1 t))
 
-(global-set-key (kbd "M-[") 'xah-append-to-register-1) ; Alt+[
-(global-set-key (kbd "M-]") 'xah-paste-from-register-1) ; Alt+]
-(global-set-key (kbd "C-M-]") 'xah-clear-register-1) ; ctrl+alt+]
+;; (global-set-key (kbd "M-[") 'xah-append-to-register-1) ; Alt+[
+;; (global-set-key (kbd "M-]") 'xah-paste-from-register-1) ; Alt+]
+;; (global-set-key (kbd "C-M-]") 'xah-clear-register-1) ; ctrl+alt+]
+
+(evil-leader/set-key (kbd "r 1") 'xah-clear-register-1)
+(evil-leader/set-key (kbd "r 2") 'xah-append-to-register-1)
+(evil-leader/set-key (kbd "r 3") 'xah-paste-from-register-1)
+
+
+;; quote navigation worked better currently forw what I want.
+;;(global-set-key (kbd "M-[") 'indent-tools-hydra/indent-tools-goto-previous-sibling) ; Alt+[
+;;(global-set-key (kbd "M-]") 'indent-tools-hydra/indent-tools-goto-next-sibling) ; Alt+]
+
+(require 'indent-tools)
+(global-set-key (kbd "<f8>") 'indent-tools-goto-previous-sibling)
+(global-set-key (kbd "<f9>") 'indent-tools-goto-next-sibling)
+
+;; (global-set-key (kbd "C-M-]") 'indent-tools-hydra/body) ; ctrl-Alt+]
+
+
+(defun xah-forward-quote-smart ()
+  "Move cursor to the current or next string quote.
+Place cursor at the position after the left quote.
+Repeated call will find the next string.
+URL `http://ergoemacs.org/emacs/emacs_navigating_keys_for_brackets.html'
+Version 2016-11-22"
+  (interactive)
+  (let (($pos (point)))
+    (if (nth 3 (syntax-ppss))
+        (progn
+          (backward-up-list 1 'ESCAPE-STRINGS 'NO-SYNTAX-CROSSING)
+          (forward-sexp)
+          (re-search-forward "\\\"" nil t))
+      (progn (re-search-forward "\\\"" nil t)))
+    (when (<= (point) $pos)
+      (progn (re-search-forward "\\\"" nil t)))))
+
+(defun xah-backward-quote ()
+  "Move cursor to the previous occurrence of \".
+If there are consecutive quotes of the same char, keep moving until none.
+Returns `t' if found, else `nil'.
+URL `http://ergoemacs.org/emacs/emacs_navigating_keys_for_brackets.html'
+Version 2016-07-23"
+  (interactive)
+  (if (re-search-backward "\\\"+" nil t)
+      (when (char-before) ; isn't nil, at beginning of buffer
+        (while (char-equal (char-before) (char-after))
+          (left-char)
+          t))
+    (progn
+      (message "No more quotes before cursor.")
+      nil)))
+
+ (global-set-key (kbd "M-]") 'xah-forward-quote-smart) ; Alt+[
+ (global-set-key (kbd "M-[") 'xah-backward-quote) ; Alt+]
 
 
 
@@ -1226,19 +1297,15 @@ Version 2015-12-08"
 
 ;;undo session mode -- not working?
 
-
 ;;(use-package undo-fu-session
 ;;  :config
 ;;  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
 ;;  (setq undo-fu-session-directory '("undo-fu-session"))
-
-
 ;;        )
-
 ;;(global-undo-fu-session-mode)
 
 
-;; ergoemacs.org - Doing tabs the way I like
+;;ergoemacs.org - Doing tabs the way I like, (not sure if messing up things)
 (defun my-insert-tab-char ()
   "Insert a tab char. (ASCII 9, \t)"
   (interactive)
@@ -1247,6 +1314,16 @@ Version 2015-12-08"
 (global-set-key (kbd "TAB") 'my-insert-tab-char) ; same as Ctrl+i
 (setq-default tab-width 8)
 
+
+
+;;spacemacs way to view-lossage
+(evil-leader/set-key (kbd "h L") 'view-lossage)
+
+;;spacemacs way to eval-region
+(evil-leader/set-key (kbd "f e e") 'eval-region)
+
+;;searching through org headlines.
+(spacemacs/set-leader-keys-for-major-mode 'org-mode "j" 'helm-org-in-buffer-headings)
 
 
 
@@ -1274,16 +1351,14 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-agenda-files
-   (quote
-    ("r:/Apps/Editorial/Meetings.org" "r:/Apps/Editorial/inbox.org" "r:/Apps/Editorial/todo.org")))
  '(package-selected-packages
    (quote
-    (undo-fu-session zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
+    (helm-org indent-tools highlight-indent-guides highlight2clipboard vscdark-theme undo-fu-session undo-fu zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(default ((((class color) (min-colors 89)) (:foreground "#839496" :background "#002b36"))))
  '(org-level-1 ((t (:inherit default :foreground "antique white")))))
 )
