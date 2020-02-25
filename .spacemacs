@@ -69,9 +69,18 @@ values."
                       auto-completion-tab-key-behavior 'complete
                       auto-completion-complete-with-key-sequence 'nil
                       auto-completion-complete-with-key-sequence-delay 0.0
-                      auto-completion-private-snippets-directory 'nil
-                      auto-completion-enable-snippets-in-popup t)
-;;     erc
+                      ;auto-completion-private-snippets-directory 'nil
+                      ;auto-completion-enable-snippets-in-popup t
+                      )
+     erc
+     (erc :variables
+          erc-enable-sasl-auth t
+          erc-server-list
+          '(("irc.freenode.net"
+             :port "6697"
+             :ssl t
+             :nick "highfi"
+             )))
      autohotkey
      org
      python
@@ -83,6 +92,7 @@ values."
 ;;     mylayer
      git
      search-engine
+     json
      ;; markdown
      ;; (shell :variables
      ;;        shell-default-height 30
@@ -134,11 +144,23 @@ values."
                                       persistent-scratch
                                       org-super-agenda
                                       google-this
+                                      vscdark-theme
+                                      helm-org-rifle
+                                      undo-fu
+                                      undo-fu-session
+                                      indent-tools
+                                      highlight-indent-guides
+                                      helm-org
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
-   dotspacemacs-excluded-packages '()
+   dotspacemacs-excluded-packages '(
+                                    yasnippet-snippets
+                                    yasnippet
+                                    projectile
+                                    spaceline
+                                    )
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
    ;; `used-only' installs only explicitly used packages and deletes any unused
@@ -430,6 +452,9 @@ before packages are loaded. If you are unsure, you should try in setting them in
 
 
 
+
+
+
 ;;solarized options and alignment.
   (setq solarized-scale-org-headlines nil)
   (setq solarized-use-variable-pitch nil)
@@ -488,28 +513,31 @@ before packages are loaded. If you are unsure, you should try in setting them in
  ;; this may not be working?
  (setq recentf-keep '(file-remote-p file-readable-p))
 
-;; undoing keys
-(setq evil-toggle-key "C-`")
-(defalias 'redo 'undo-tree-redo)
-(global-set-key (kbd "C-z") 'undo) ; 【Ctrl+z】
-;;(global-set-key (kbd "C-S-z") 'redo) ; 【Ctrl+Shift+z】;  Mac style
-   (global-set-key (kbd "C-y") 'redo) ; 【Ctrl+y】; Microsoft Windows style
-;; 
+
 (global-unset-key (kbd "C-/"))
 (global-set-key (kbd "C-w") 'kill-this-buffer) ; 【Ctrl+w】; Microsoft Windows style
 
-;; Persistant undo
+
+
+
+
+;; Persistant undo --- removing this
 ;; (setq undo-tree-auto-save-history t)
 
 ;;https://translate.google.com/translate?hl=en&sl=ru&u=http://qaru.site/questions/12227446/undo-tree-doesnt-auto-load-history&prev=search
-(when (not (eq (last buffer-undo-list) 'undo-tree-canary))
-  (setq buffer-undo-list (append buffer-undo-list '(nil undo-tree-canary))))
+;; (when (not (eq (last buffer-undo-list) 'undo-tree-canary))
+;;   (setq buffer-undo-list (append buffer-undo-list '(nil undo-tree-canary))))
 
 ;;https://hk.saowen.com/a/dff3ead380819974dd54404f4b4e8930bb1a2c06e00ca3262086093df2fca97c
-(advice-add 'undo-tree-load-history-hook :after (lambda () (setq buffer-undo-list '(nil undo-tree-canary))))
+;;(advice-add 'undo-tree-load-history-hook :after (lambda () (setq buffer-undo-list '(nil undo-tree-canary))))
 
 ;;https://emacs.stackexchange.com/questions/26993/saving-persistent-undo-to-a-single-directory-alist-format
 ;;(setq undo-tree-history-directory-alist '(("." . "r:/apps/emacs/undo/")))
+
+
+
+
+
 
 ;; remove this that is default bound to mouse-3
 ;;(global-set-key [remap mouse-save-then-kill] 'ignore)
@@ -654,6 +682,22 @@ explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
 
 
+  (defun ask-before-closing ()
+    "Close only if y was pressed."
+    (interactive)
+    (if (y-or-n-p (format "Are you sure you want to close Spacemacs? "))
+        (spacemacs/prompt-kill-emacs)                                                                                            
+      (message "Canceled frame close")))
+
+  (when (daemonp)
+    (global-set-key (kbd "C-x C-c") 'ask-before-closing))
+
+
+  (evil-leader/set-key (kbd "q q") 'ask-before-closing)
+
+
+
+
 ;;change junk file directory
   (setq open-junk-file-format "r:/apps/editorial/junk/%Y-%m%d-%H%M%S.")
 
@@ -664,7 +708,11 @@ you should place your code here."
 ;;  (global-linum-mode)
 
   ;; swiper instead of helm-swoop
-  (evil-leader/set-key (kbd "s s") 'swiper-helm)
+  ;;  (evil-leader/set-key (kbd "s s") 'swiper-helm)
+
+  ;; Going back to helm-swoop
+   (evil-leader/set-key (kbd "s s") 'helm-swoop)
+   (setq helm-swoop-move-to-line-cycle nil)
 
   ;; elfeed
   (evil-leader/set-key (kbd "a e") 'elfeed)
@@ -724,6 +772,13 @@ you should place your code here."
 
   ;; Recent directory
   (evil-leader/set-key (kbd "f d") 'bjm/ivy-dired-recent-dirs)
+
+  ;; My Favorite files
+  (evil-leader/set-key (kbd "b f 1") (lambda () (interactive) (find-file "r:/apps/editorial/todo.org")))
+  (evil-leader/set-key (kbd "b f 2") (lambda () (interactive) (find-file "r:/apps/Editorial/inbox.org")))
+  (evil-leader/set-key (kbd "b f 3") (lambda () (interactive) (find-file "r:/apps/Editorial/obi1kb.org")))
+  (evil-leader/set-key (kbd "b f 4") (lambda () (interactive) (find-file "r:/apps/Editorial/meetings.org")))
+  (evil-leader/set-key (kbd "b f 5") (lambda () (interactive) (find-file "r:/apps/Editorial/reference/costcenters.txt")))
 
 
   (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
@@ -1114,8 +1169,160 @@ Does not set point.  Does nothing if mark ring is empty."
 
 
 
+  ;; Open each of the marked files, or the file under the point, or when prefix arg, the next N files "
+  (eval-after-load "dired"
+    '(progn
+       (define-key dired-mode-map "F" 'my-dired-find-file)
+       (defun my-dired-find-file (&optional arg)
+         "Open each of the marked files, or the file under the point, or when prefix arg, the next N files "
+         (interactive "P")
+         (let* ((fn-list (dired-get-marked-files nil arg)))
+           (mapc 'find-file fn-list)))))
+
+  (which-key-remove-default-unicode-chars)
+
+ ;; keep isearch highlighted when scrolling
+(setq isearch-allow-scroll t)
 
 
+(defun xah-append-to-register-1 ()
+  "Append current line or text selection to register 1.
+When no selection, append current line with newline char.
+See also: `xah-paste-from-register-1', `copy-to-register'.
+
+URL `http://ergoemacs.org/emacs/elisp_copy-paste_register_1.html'
+Version 2015-12-08"
+  (interactive)
+  (let ($p1 $p2)
+    (if (region-active-p)
+        (progn (setq $p1 (region-beginning))
+               (setq $p2 (region-end)))
+      (progn (setq $p1 (line-beginning-position))
+             (setq $p2 (line-end-position))))
+    (append-to-register ?1 $p1 $p2)
+    (with-temp-buffer (insert "\n")
+                      (append-to-register ?1 (point-min) (point-max)))
+    (message "Appended to register 1: 「%s」." (buffer-substring-no-properties $p1 $p2))))
+
+
+(defun xah-clear-register-1 ()
+  "Clear register 1.
+See also: `xah-paste-from-register-1', `copy-to-register'.
+
+URL `http://ergoemacs.org/emacs/elisp_copy-paste_register_1.html'
+Version 2015-12-08"
+  (interactive)
+  (progn
+    (copy-to-register ?1 (point-min) (point-min))
+    (message "Cleared register 1.")))
+
+(defun xah-paste-from-register-1 ()
+  "Paste text from register 1.
+See also: `xah-copy-to-register-1', `insert-register'.
+URL `http://ergoemacs.org/emacs/elisp_copy-paste_register_1.html'
+Version 2015-12-08"
+  (interactive)
+  (when (use-region-p)
+    (delete-region (region-beginning) (region-end)))
+  (insert-register ?1 t))
+
+;; (global-set-key (kbd "M-[") 'xah-append-to-register-1) ; Alt+[
+;; (global-set-key (kbd "M-]") 'xah-paste-from-register-1) ; Alt+]
+;; (global-set-key (kbd "C-M-]") 'xah-clear-register-1) ; ctrl+alt+]
+
+(evil-leader/set-key (kbd "r 1") 'xah-clear-register-1)
+(evil-leader/set-key (kbd "r 2") 'xah-append-to-register-1)
+(evil-leader/set-key (kbd "r 3") 'xah-paste-from-register-1)
+
+
+;; quote navigation worked better currently forw what I want.
+;;(global-set-key (kbd "M-[") 'indent-tools-hydra/indent-tools-goto-previous-sibling) ; Alt+[
+;;(global-set-key (kbd "M-]") 'indent-tools-hydra/indent-tools-goto-next-sibling) ; Alt+]
+
+(require 'indent-tools)
+(global-set-key (kbd "<f8>") 'indent-tools-goto-previous-sibling)
+(global-set-key (kbd "<f9>") 'indent-tools-goto-next-sibling)
+
+;; (global-set-key (kbd "C-M-]") 'indent-tools-hydra/body) ; ctrl-Alt+]
+
+
+(defun xah-forward-quote-smart ()
+  "Move cursor to the current or next string quote.
+Place cursor at the position after the left quote.
+Repeated call will find the next string.
+URL `http://ergoemacs.org/emacs/emacs_navigating_keys_for_brackets.html'
+Version 2016-11-22"
+  (interactive)
+  (let (($pos (point)))
+    (if (nth 3 (syntax-ppss))
+        (progn
+          (backward-up-list 1 'ESCAPE-STRINGS 'NO-SYNTAX-CROSSING)
+          (forward-sexp)
+          (re-search-forward "\\\"" nil t))
+      (progn (re-search-forward "\\\"" nil t)))
+    (when (<= (point) $pos)
+      (progn (re-search-forward "\\\"" nil t)))))
+
+(defun xah-backward-quote ()
+  "Move cursor to the previous occurrence of \".
+If there are consecutive quotes of the same char, keep moving until none.
+Returns `t' if found, else `nil'.
+URL `http://ergoemacs.org/emacs/emacs_navigating_keys_for_brackets.html'
+Version 2016-07-23"
+  (interactive)
+  (if (re-search-backward "\\\"+" nil t)
+      (when (char-before) ; isn't nil, at beginning of buffer
+        (while (char-equal (char-before) (char-after))
+          (left-char)
+          t))
+    (progn
+      (message "No more quotes before cursor.")
+      nil)))
+
+ (global-set-key (kbd "M-]") 'xah-forward-quote-smart) ; Alt+[
+ (global-set-key (kbd "M-[") 'xah-backward-quote) ; Alt+]
+
+
+
+;;undo keys
+(global-undo-tree-mode -1)
+(global-unset-key (kbd "C-z"))
+(global-unset-key (kbd "C-y"))
+(define-key evil-emacs-state-map (kbd "C-z") 'undo-fu-only-undo)
+;; (global-set-key (kbd "C-z") 'undo-fu-only-undo)
+(global-set-key (kbd "C-y") 'undo-fu-only-redo)
+
+
+;;undo session mode -- not working?
+
+;;(use-package undo-fu-session
+;;  :config
+;;  (setq undo-fu-session-incompatible-files '("/COMMIT_EDITMSG\\'" "/git-rebase-todo\\'"))
+;;  (setq undo-fu-session-directory '("undo-fu-session"))
+;;        )
+;;(global-undo-fu-session-mode)
+
+
+;;ergoemacs.org - Doing tabs the way I like, (not sure if messing up things)
+(defun my-insert-tab-char ()
+  "Insert a tab char. (ASCII 9, \t)"
+  (interactive)
+  (insert "\t"))
+
+(global-set-key (kbd "TAB") 'my-insert-tab-char) ; same as Ctrl+i
+(setq-default tab-width 8)
+
+(spacemacs/set-leader-keys "ht" 'hs-toggle-hiding)
+
+
+;;spacemacs way to view-lossage
+(evil-leader/set-key (kbd "h L") 'view-lossage)
+
+;;spacemacs way to eval-region
+(evil-leader/set-key (kbd "f e e") 'eval-region)
+
+;;searching through org headlines.
+(spacemacs/set-leader-keys-for-major-mode 'org-mode "j" 'helm-org-in-buffer-headings)
 
 
 
@@ -1148,7 +1355,7 @@ This function is called at the very end of Spacemacs initialization."
     ("r:/Apps/Editorial/todo.org" "r:/Apps/Editorial/inbox.org")))
  '(package-selected-packages
    (quote
-    (org-journal zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async)))
+    (vscdark-theme undo-fu-session undo-fu indent-tools yafolding highlight-indent-guides helm-org erc-yt erc-view-log erc-social-graph erc-image erc-hl-nicks zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async)))
  '(paradox-github-token t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
