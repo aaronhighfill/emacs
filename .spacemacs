@@ -162,6 +162,7 @@ values."
                                     yasnippet
                                     projectile
                                     spaceline
+                                    company-tern
                                     )
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -262,7 +263,7 @@ It should only modify the values of Spacemacs settings."
    ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
    dotspacemacs-mode-line-theme '(vim-powerline)
-   ;;dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1.5)
+   ;; dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1.5)
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
    dotspacemacs-colorize-cursor-according-to-state t
@@ -757,6 +758,9 @@ you should place your code here."
   ;; org searching
   (evil-leader/set-key (kbd "s o r") 'helm-org-rifle)
 
+  ;;searching through all  org headlines
+  (evil-leader/set-key (kbd "s o h") 'helm-org-agenda-files-headings)
+
 ;;  (load-file "~/.emacs.d/private/local/ebs.el")
   (load-file "r:/apps/emacs/private/local/ebs.el")
   (ebs-initialize)
@@ -782,6 +786,7 @@ you should place your code here."
   (evil-leader/set-key (kbd "b f 3") (lambda () (interactive) (find-file "r:/apps/Editorial/obi1kb.org")))
   (evil-leader/set-key (kbd "b f 4") (lambda () (interactive) (find-file "r:/apps/Editorial/meetings.org")))
   (evil-leader/set-key (kbd "b f 5") (lambda () (interactive) (find-file "r:/apps/Editorial/reference/costcenters.txt")))
+
   (evil-leader/set-key (kbd "b f 6") (lambda () (interactive) (find-file-other-frame "r:/apps/Editorial/scratch.org")))
   ;; Replace with my own scratch buffer. no "switch-to-scratch-buffer"
   (evil-leader/set-key (kbd "b s") (lambda () (interactive) (find-file "r:/apps/Editorial/scratch.org")))
@@ -795,10 +800,6 @@ you should place your code here."
                     )
 
 (global-set-key (kbd "C-`") 'open-scratch-org-buffer-new-frame)
-
-
-
-
 
 
   (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
@@ -853,9 +854,6 @@ you should place your code here."
 
   (setq find-program "c:/Progra~1/Git/usr/bin/find.exe")
   (setq grep-program "c:/Progra~1/Git/usr/bin/grep.exe")
-  (setq grep-program "c:/Progra~1/Git/usr/bin/ls.exe")
-
-
 
   ;;Make instance a server
  (server-start)
@@ -1048,7 +1046,6 @@ Does not set point.  Does nothing if mark ring is empty."
 
 ;;  (define-key org-mode-map (kbd "\C-x |") 'org-table-transform-in-place)
 
-
   (setq org-refile-targets (quote (("todo.org" :maxlevel . 9)
                                    ("meetings.org" :maxlevel . 9)
                                    ("obi.org" :maxlevel . 9)
@@ -1056,10 +1053,6 @@ Does not set point.  Does nothing if mark ring is empty."
 
   (setq org-outline-path-complete-in-steps nil)         ; Refile in a single go
   (setq org-refile-use-outline-path t)                  ; Show full paths for refiling
-
-
-
-
 
   ;; (global-set-key (kbd "<scroll>") 'scroll-lock-mode)
 
@@ -1351,6 +1344,7 @@ Version 2016-07-23"
 ;;searching through org headlines.
 (spacemacs/set-leader-keys-for-major-mode 'org-mode "j" 'helm-org-in-buffer-headings)
 
+
 ;;searching through all  org headlines
 (evil-leader/set-key (kbd "s o h") 'helm-org-agenda-files-headings)
 
@@ -1366,7 +1360,6 @@ Version 2016-07-23"
 (define-key helm-map (kbd "C-;") 'helm-execute-persistent-action)
 
 
-
 (setq-default fill-column 130)
 (add-hook 'org-mode-hook 'visual-line-mode)
 (add-hook 'org-mode-hook 'visual-fill-column-mode)
@@ -1374,7 +1367,8 @@ Version 2016-07-23"
 
 (let ((org-super-agenda-groups
        '((:auto-group t))))
-  (org-agenda-list))
+)
+
 
 (org-super-agenda-mode)
 
@@ -1428,6 +1422,7 @@ Version 2016-07-23"
                                  :order 90)
                           (:discard (:tag ("Chore" "Routine" "Daily")))))
 
+
 (setq org-agenda-window-setup 'current-window)
 
 (setq org-capture-templates
@@ -1468,6 +1463,7 @@ Version 2016-07-23"
 
 
 
+
 )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -1479,7 +1475,7 @@ Version 2016-07-23"
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
+    (zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
 
 ;; End:
 (defun dotspacemacs/emacs-custom-settings ()
@@ -1499,11 +1495,12 @@ This function is called at the very end of Spacemacs initialization."
    (quote
     (zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data company-tern dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async)))
  '(pop-up-frames nil))
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((((class color) (min-colors 89)) (:foreground "#839496" :background "#002b36"))))
  '(org-level-1 ((t (:inherit default :foreground "antique white")))))
 )
+
