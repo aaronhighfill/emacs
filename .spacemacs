@@ -1662,7 +1662,7 @@ _vr_ reset      ^^                       ^^                 ^^
 (define-key org-mode-map "\C-e" 'org-end-of-line)
 
 
-;;test20210623
+
 
 
 
