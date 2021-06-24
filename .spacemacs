@@ -38,9 +38,10 @@ values."
    dotspacemacs-configuration-layer-path '()
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(ansible
-     yaml
+   '(yaml
+     ;;ansible
      windows-scripts
+     themes-megapack
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
@@ -153,6 +154,7 @@ values."
                                       helm-org
                                       peep-dired
                                       org-super-agenda
+                                      intellij-theme
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -245,15 +247,15 @@ It should only modify the values of Spacemacs settings."
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
    dotspacemacs-themes '(
-                         solarized-dark
                          sourcerer
+                         hc-zenburn
+												 solarized-dark
                          solarized-light
                          spacemacs-dark
                          spacemacs-light
                          leuven
                          monokai
                          zenburn
-                         hc-zenburn
                          )
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
    ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
@@ -477,8 +479,9 @@ before packages are loaded. If you are unsure, you should try in setting them in
   (setq org-use-speed-commands t)
   (setq org-speed-commands-user (quote (("i" . org-metaup)
                                         ("k" . org-metadown)
-                                        ("'" . kill-whole-line)
+                                        ("'" . org-cut-subtree)
                                         ("h" . org-cycle)
+                                        ("H" . org-shifttab)
                                         ("q" . kill-this-buffer)
                                         ("m" . spacemacs/toggle-maximize-buffer)
                                         ("d" . widen)
@@ -570,6 +573,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
   ;; Turn off c-y yanking for org-mode
   (add-hook 'evil-org-mode-hook (lambda () (local-unset-key (kbd "C-y"))))
 
+
   ;;(setq scroll-error-top-bottom t)
 
   ;; Isearch Wrap search - This does not appear to bew working
@@ -578,7 +582,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
   ;;   (unless isearch-success
   ;;     (ad-disable-advice 'isearch-repeat 'after 'isearch-no-fail)
   ;;     (ad-activate 'isearch-repeat)
-  ;;     (isearch-repeat (if isearch-forward 'forward))
+  ;;     (isearch-repeat (if isearch-forward 'forward))			
   ;;     (ad-enable-advice 'isearch-repeat 'after 'isearch-no-fail)
   ;;     (ad-activate 'isearch-repeat)))
 
@@ -781,17 +785,18 @@ you should place your code here."
   (evil-leader/set-key (kbd "f d") 'bjm/ivy-dired-recent-dirs)
 
   ;; My Favorite files
-  (evil-leader/set-key (kbd "b f 1") (lambda () (interactive) (find-file "r:/apps/editorial/todo.org")))
-  (evil-leader/set-key (kbd "b f 2") (lambda () (interactive) (find-file "r:/apps/Editorial/inbox.org")))
-  (evil-leader/set-key (kbd "b f 3") (lambda () (interactive) (find-file "r:/apps/Editorial/obi1kb.org")))
-  (evil-leader/set-key (kbd "b f 4") (lambda () (interactive) (find-file "r:/apps/Editorial/meetings.org")))
-  (evil-leader/set-key (kbd "b f 5") (lambda () (interactive) (find-file "r:/apps/Editorial/reference/costcenters.txt")))
+  (evil-leader/set-key (kbd "b f 0") (lambda () (interactive) (find-file "r:/apps/Editorial/inbox.org")))
+  (evil-leader/set-key (kbd "b f 1") (lambda () (interactive) (find-file "r:/apps/Editorial/todowork.org")))
+  (evil-leader/set-key (kbd "b f 2") (lambda () (interactive) (find-file "r:/apps/Editorial/obi1kbwork.org")))
+  (evil-leader/set-key (kbd "b f 3") (lambda () (interactive) (find-file "r:/apps/Editorial/riverofreferencework.org")))
+  (evil-leader/set-key (kbd "b f 4") (lambda () (interactive) (find-file "r:/apps/Editorial/todohome.org")))
+  (evil-leader/set-key (kbd "b f 5") (lambda () (interactive) (find-file "r:/apps/Editorial/obi1kbhome.org")))
+  (evil-leader/set-key (kbd "b f 6") (lambda () (interactive) (find-file "r:/apps/Editorial/riverofreferencehome.org")))
+  (evil-leader/set-key (kbd "b f m") (lambda () (interactive) (find-file "r:/apps/Editorial/meetings.org")))
+  (evil-leader/set-key (kbd "b f s") (lambda () (interactive) (find-file-other-frame "r:/apps/Editorial/scratch.org")))
 
-  (evil-leader/set-key (kbd "b f 6") (lambda () (interactive) (find-file-other-frame "r:/apps/Editorial/scratch.org")))
   ;; Replace with my own scratch buffer. no "switch-to-scratch-buffer"
-  (evil-leader/set-key (kbd "b s") (lambda () (interactive) (find-file "r:/apps/Editorial/scratch.org")))
-
-
+  (evil-leader/set-key (kbd "b s") (lambda () (interactive) (find-file-other-frame "r:/apps/Editorial/scratch.org")))
 
   (defun open-scratch-org-buffer-new-frame ()
                     "Open my scratch buffer in  a new frame"
@@ -866,15 +871,49 @@ you should place your code here."
   (setq mouse-wheel-progressive-speed nil)
 
 
+;;better c-backspace https://stackoverflow.com/questions/28221079/ctrl-backspace-in-emacs-deletes-too-much Combined with kill region if region exists.
+
+  (defun aborn/backward-kill-word ()
+  "Customize/Smart backward-kill-word."
+  (interactive)
+  (let* ((cp (point))
+         (backword)
+         (end)
+         (space-pos)
+         (backword-char (if (bobp)
+                            ""           ;; cursor in begin of buffer
+                          (buffer-substring cp (- cp 1)))))
+		(if (region-active-p)
+        (kill-region (region-beginning) (region-end))
+    (if (equal (length backword-char) (string-width backword-char))
+        (progn
+          (save-excursion
+            (setq backword (buffer-substring (point) (progn (forward-word -1) (point)))))
+          (setq ab/debug backword)
+;          (save-excursion
+;            (when (and backword          ;; when backword contains space
+;                       (s-contains? " " backword))
+;              (setq space-pos (ignore-errors (search-backward " ")))))
+          (save-excursion
+            (let* ((pos (ignore-errors (search-backward-regexp "\n")))
+                   (substr (when pos (buffer-substring pos cp))))
+              (when (or (and substr (s-blank? (s-trim substr)))
+                        (s-contains? "\n" backword))
+                (setq end pos))))
+          (if end
+              (kill-region cp end)
+            (if space-pos
+                (kill-region cp space-pos)
+              (backward-kill-word 1))))
+      (kill-region cp (- cp 1)))         ;; word is non-english word
+    )))
+
+(global-set-key  [C-backspace]
+                 'aborn/backward-kill-word)
 
 
-  (defun kill-region-or-backward-word ()
-    "Kill selected region if region is active. Otherwise kill a backward word."
-    (interactive)
-    (if (region-active-p)
-	      (kill-region (region-beginning) (region-end))
-	    (backward-kill-word 1)))
-  (global-set-key [C-backspace] 'kill-region-or-backward-word)
+
+
 
   ;  (global-set-key [C-backspace] 'evil-delete-backward-word)
 
@@ -1046,10 +1085,16 @@ Does not set point.  Does nothing if mark ring is empty."
 
 ;;  (define-key org-mode-map (kbd "\C-x |") 'org-table-transform-in-place)
 
-  (setq org-refile-targets (quote (("todo.org" :maxlevel . 9)
-                                   ("meetings.org" :maxlevel . 9)
-                                   ("obi.org" :maxlevel . 9)
-                                   ("inbox.org" :maxlevel . 9))))
+  (setq org-refile-targets (quote (("r:/Apps/Editorial/todowork.org" :maxlevel . 2)
+                                   ("r:/Apps/Editorial/todohome.org" :maxlevel . 2)
+                                   ("r:/Apps/Editorial/obi1kbwork.org" :maxlevel . 2)
+                                   ("r:/Apps/Editorial/obi1kbhome.org" :maxlevel . 2)
+                                   ("r:/Apps/Editorial/riverofreferencework.org" :maxlevel . 2)
+                                   ("r:/Apps/Editorial/riverofreferencehome.org" :maxlevel . 2)
+                                   ("r:/Apps/Editorial/somedaymaybework.org" :maxlevel . 2)
+                                   ("r:/Apps/Editorial/somedaymaybehome.org" :maxlevel . 2)
+                                   ("r:/Apps/Editorial/meetings.org" :maxlevel . 2)
+                                   ("r:/Apps/Editorial/inbox.org" :maxlevel . 2))))
 
   (setq org-outline-path-complete-in-steps nil)         ; Refile in a single go
   (setq org-refile-use-outline-path t)                  ; Show full paths for refiling
@@ -1351,9 +1396,6 @@ Version 2016-07-23"
 ;;Jump to date on org agenda major mode
 (spacemacs/set-leader-keys-for-major-mode 'org-agenda-mode "j" 'org-agenda-goto-date)
 
-
-
-
 (setq org-startup-with-inline-images t)
 
 ;;helm-mini and c-z cua
@@ -1362,7 +1404,7 @@ Version 2016-07-23"
 
 (setq-default fill-column 130)
 (add-hook 'org-mode-hook 'visual-line-mode)
-(add-hook 'org-mode-hook 'visual-fill-column-mode)
+;;(add-hook 'org-mode-hook 'visual-fill-column-mode)
 (setq org-startup-indented t)
 
 (let ((org-super-agenda-groups
@@ -1373,27 +1415,27 @@ Version 2016-07-23"
 (org-super-agenda-mode)
 
 (setq org-agenda-start-with-log-mode t)
-
+(setq org-agenda-skip-deadline-prewarning-if-scheduled t)
+(setq org-agenda-skip-deadline-prewarning-if-scheduled t)
+(setq org-agenda-skip-scheduled-if-deadline-is-shown t)
+;;org-agenda-skip-scheduled-if-deadline-is-shown <-- not sure for this.  https://www.reddit.com/r/orgmode/comments/cc5vz5/how_to_avoid_duplicates_in_orgsuperagenda/ -- I think I like it
 
 
   (setq org-super-agenda-groups
-        '((:name "------------------------Next to do------------------------"
-                                 :todo "NEXT"
-                                 :order 1)
-                          (:auto-group t)
-                          (:name "------------------------Due Today------------------------"
+        '(                (:auto-group t)
+                          (:name "--------------------- ! Due Today !-----------------------"
                                  :deadline today
                                  :order 2)
                           (:name "------------------------Important------------------------"
                                  :tag "Important"
                                  :priority "A"
-                                 :order 6)
-                          (:name "------------------------Overdue------------------------"
+                                 :order 4)
+                          (:name "-----------------------! Overdue !-----------------------"
                                  :deadline past
-                                 :order 7)
+                                 :order 1)
                           (:name "------------------------Due Soon------------------------"
                                  :deadline future
-                                 :order 8)
+                                 :order 3)
                           (:name "------------------------MONITORING------------------------"
                                  :todo "MONITORING"
                                  :order 10)
@@ -1423,11 +1465,12 @@ Version 2016-07-23"
                           (:discard (:tag ("Chore" "Routine" "Daily")))))
 
 
+
 (setq org-agenda-window-setup 'current-window)
 
 (setq org-capture-templates
       '(
-        ("t" "Todo" entry (file "r:/Apps/Editorial/inbox.orgg")
+        ("t" "Todo" entry (file "r:/Apps/Editorial/inbox.org")
          "* TODO %?\n%U" :empty-lines 1)
         ("T" "Todo with Clipboard" entry (file "r:/Apps/Editorial/inbox.org")
          "* TODO %?\n%U\n   %c" :empty-lines 1)
@@ -1461,6 +1504,167 @@ Version 2016-07-23"
 
 (global-set-key (kbd "M-<f4>") 'delete-frame)
 
+(defhydra hydra-dired (:hint nil :color pink)
+  "
+_+_ mkdir          _v_iew           _m_ark             _(_ details        _i_nsert-subdir    wdired
+_C_opy             _O_ view other   _U_nmark all       _)_ omit-mode      _$_ hide-subdir    C-x C-q : edit
+_D_elete           _o_pen other     _u_nmark           _l_ redisplay      _w_ kill-subdir    C-c C-c : commit
+_R_ename           _M_ chmod        _t_oggle           _g_ revert buf     _e_ ediff          C-c ESC : abort
+_Y_ rel symlink    _G_ chgrp        _E_xtension mark   _s_ort             _=_ pdiff
+_S_ymlink          ^ ^              _F_ind marked      _._ toggle hydra   \\ flyspell
+_r_sync            ^ ^              ^ ^                ^ ^                _?_ summary
+_z_ compress-file  _A_ find regexp
+_Z_ compress       _Q_ repl regexp
+
+T - tag prefix
+"
+  ("\\" dired-do-ispell)
+  ("(" dired-hide-details-mode)
+  (")" dired-omit-mode)
+  ("+" dired-create-directory)
+  ("=" diredp-ediff)         ;; smart diff
+  ("?" dired-summary)
+  ("$" diredp-hide-subdir-nomove)
+  ("A" dired-do-find-regexp)
+  ("C" dired-do-copy)        ;; Copy all marked files
+  ("D" dired-do-delete)
+  ("E" dired-mark-extension)
+  ("e" dired-ediff-files)
+  ("F" dired-do-find-marked-files)
+  ("G" dired-do-chgrp)
+  ("g" revert-buffer)        ;; read all directories again (refresh)
+  ("i" dired-maybe-insert-subdir)
+  ("l" dired-do-redisplay)   ;; relist the marked or singel directory
+  ("M" dired-do-chmod)
+  ("m" dired-mark)
+  ("O" dired-display-file)
+  ("o" dired-find-file-other-window)
+  ("Q" dired-do-find-regexp-and-replace)
+  ("R" dired-do-rename)
+  ("r" dired-do-rsynch)
+  ("S" dired-do-symlink)
+  ("s" dired-sort-toggle-or-edit)
+  ("t" dired-toggle-marks)
+  ("U" dired-unmark-all-marks)
+  ("u" dired-unmark)
+  ("v" dired-view-file)      ;; q to exit, s to search, = gets line #
+  ("w" dired-kill-subdir)
+  ("Y" dired-do-relsymlink)
+  ("z" diredp-compress-this-file)
+  ("Z" dired-do-compress)
+  ("q" nil)
+  ("." nil :color blue))
+
+(define-key dired-mode-map "." 'hydra-dired/body)
+
+
+;; Hydra for org agenda (graciously taken from Spacemacs)
+(defhydra hydra-org-agenda (:pre (setq which-key-inhibit t)
+                                 :post (setq which-key-inhibit nil)
+                                 :hint none)
+  "
+Org agenda (_q_uit)
+
+^Clock^      ^Visit entry^              ^Date^             ^Other^
+^-----^----  ^-----------^------------  ^----^-----------  ^-----^---------
+_ci_ in      _SPC_ in other window      _ds_ schedule      _gr_ reload
+_co_ out     _TAB_ & go to location     _dd_ set deadline  _._  go to today
+_cq_ cancel  _RET_ & del other windows  _dt_ timestamp     _gd_ go to date
+_cj_ jump    _o_   link                 _+_  do later      ^^
+^^           ^^                         _-_  do earlier    ^^
+^^           ^^                         ^^                 ^^
+^View^          ^Filter^                 ^Headline^         ^Toggle mode^
+^----^--------  ^------^---------------  ^--------^-------  ^-----------^----
+_vd_ day        _ft_ by tag              _ht_ set status    _tf_ follow
+_vw_ week       _fr_ refine by tag       _hk_ kill          _tl_ log
+_vt_ fortnight  _fc_ by category         _hr_ refile        _ta_ archive trees
+_vm_ month      _fh_ by top headline     _hA_ archive       _tA_ archive files
+_vy_ year       _fx_ by regexp           _h:_ set tags      _tr_ clock report
+_vn_ next span  _fd_ delete all filters  _hp_ set priority  _td_ diaries
+_vp_ prev span  ^^                       ^^                 ^^
+_vr_ reset      ^^                       ^^                 ^^
+^^              ^^                       ^^                 ^^
+"
+  ;; Entry
+  ("hA" org-agenda-archive-default)
+  ("hk" org-agenda-kill)
+  ("hp" org-agenda-priority)
+  ("hr" org-agenda-refile)
+  ("h:" org-agenda-set-tags)
+  ("ht" org-agenda-todo)
+  ;; Visit entry
+  ("o"   link-hint-open-link :exit t)
+  ("<tab>" org-agenda-goto :exit t)
+  ("TAB" org-agenda-goto :exit t)
+  ("SPC" org-agenda-show-and-scroll-up)
+  ("RET" org-agenda-switch-to :exit t)
+  ;; Date
+  ("dt" org-agenda-date-prompt)
+  ("dd" org-agenda-deadline)
+  ("+" org-agenda-do-date-later)
+  ("-" org-agenda-do-date-earlier)
+  ("ds" org-agenda-schedule)
+  ;; View
+  ("vd" org-agenda-day-view)
+  ("vw" org-agenda-week-view)
+  ("vt" org-agenda-fortnight-view)
+  ("vm" org-agenda-month-view)
+  ("vy" org-agenda-year-view)
+  ("vn" org-agenda-later)
+  ("vp" org-agenda-earlier)
+  ("vr" org-agenda-reset-view)
+  ;; Toggle mode
+  ("ta" org-agenda-archives-mode)
+  ("tA" (org-agenda-archives-mode 'files))
+  ("tr" org-agenda-clockreport-mode)
+  ("tf" org-agenda-follow-mode)
+  ("tl" org-agenda-log-mode)
+  ("td" org-agenda-toggle-diary)
+  ;; Filter
+  ("fc" org-agenda-filter-by-category)
+  ("fx" org-agenda-filter-by-regexp)
+  ("ft" org-agenda-filter-by-tag)
+  ("fr" org-agenda-filter-by-tag-refine)
+  ("fh" org-agenda-filter-by-top-headline)
+  ("fd" org-agenda-filter-remove-all)
+  ;; Clock
+  ("cq" org-agenda-clock-cancel)
+  ("cj" org-agenda-clock-goto :exit t)
+  ("ci" org-agenda-clock-in :exit t)
+  ("co" org-agenda-clock-out)
+  ;; Other
+  ("q" nil :exit t)
+  ("gd" org-agenda-goto-date)
+  ("." org-agenda-goto-today)
+  ("gr" org-agenda-redo))
+
+(define-key org-agenda-mode-map "." 'hydra-org-agenda/body)
+
+
+
+
+
+
+
+;;Proper case
+(evil-leader/set-key (kbd "x C-u") 'upcase-initials-region)
+
+;highlights the cursor line. I usually go with the default.
+;(set-face-background hl-line-face "darkgreen")
+
+;; Refresh the images in an org file
+(global-set-key (kbd "<f5>") 'org-redisplay-inline-images)
+
+;; attempt to do org endofline better
+(define-key org-mode-map [home] 'org-beginning-of-line)
+(define-key org-mode-map [end] 'org-end-of-line)
+(define-key org-mode-map "\C-a" 'org-beginning-of-line)
+(define-key org-mode-map "\C-e" 'org-end-of-line)
+
+
+
+
+
 
 
 
@@ -1488,18 +1692,99 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-color-faces-vector
+   [default bold shadow italic underline bold bold-italic bold])
+ '(ansi-color-names-vector
+   ["#222222" "#aa4450" "#87875f" "#cc8800" "#87AFD7" "#8787AF" "#87ceeb" "#c2c2b0"])
+ '(beacon-color "#d33682")
+ '(compilation-message-face (quote default))
+ '(cua-global-mark-cursor-color "#3cafa5")
+ '(cua-mode t nil (cua-base))
+ '(cua-overwrite-cursor-color "#c49619")
+ '(cua-read-only-cursor-color "#93a61a")
+ '(evil-want-Y-yank-to-eol nil)
+ '(fci-rule-color "#62686E")
+ '(flycheck-color-mode-line-face-to-color (quote mode-line-buffer-id))
+ '(frame-background-mode (quote light))
+ '(highlight-changes-colors (quote ("#e2468f" "#7a7ed2")))
+ '(highlight-symbol-colors
+   (quote
+    ("#3c6e408d329c" "#0c4a45f54ce3" "#486d33913531" "#1fab3bea568c" "#2ec943ac3324" "#449935a6314d" "#0b03411b5985")))
+ '(highlight-symbol-foreground-color "#9eacac")
+ '(highlight-tail-colors
+   (quote
+    (("#01323d" . 0)
+     ("#687f00" . 20)
+     ("#008981" . 30)
+     ("#0069b0" . 50)
+     ("#936d00" . 60)
+     ("#a72e01" . 70)
+     ("#a81761" . 85)
+     ("#01323d" . 100))))
+ '(hl-bg-colors
+   (quote
+    ("#936d00" "#a72e01" "#ae1212" "#a81761" "#3548a2" "#0069b0" "#008981" "#687f00")))
+ '(hl-fg-colors
+   (quote
+    ("#002732" "#002732" "#002732" "#002732" "#002732" "#002732" "#002732" "#002732")))
+ '(jdee-db-active-breakpoint-face-colors (cons "#1d2127" "#87ceeb"))
+ '(jdee-db-requested-breakpoint-face-colors (cons "#1d2127" "#87875f"))
+ '(jdee-db-spec-breakpoint-face-colors (cons "#1d2127" "#686858"))
+ '(lsp-ui-doc-border "#9eacac")
+ '(nrepl-message-colors
+   (quote
+    ("#ec423a" "#db5823" "#c49619" "#687f00" "#c3d255" "#0069b0" "#3cafa5" "#e2468f" "#7a7ed2")))
+ '(objed-cursor-color "#aa4450")
  '(org-agenda-files
    (quote
-    ("r:/Apps/Editorial/inbox.org" "r:/Apps/Editorial/obi1kb.org" "r:/Apps/Editorial/todo.org")))
+    ("r:/Apps/Editorial/inbox.org" "r:/Apps/Editorial/todohome.org" "r:/Apps/Editorial/todowork.org")))
+ '(org-special-ctrl-a/e t)
  '(package-selected-packages
    (quote
-    (peep-dired zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
+    (zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async)))
+ '(pdf-view-midnight-colors (cons "#c2c2b0" "#222222"))
+ '(pos-tip-background-color "#01323d")
+ '(pos-tip-foreground-color "#9eacac")
+ '(rustic-ansi-faces
+   ["#222222" "#aa4450" "#87875f" "#cc8800" "#87AFD7" "#8787AF" "#87ceeb" "#c2c2b0"])
+ '(smartrep-mode-line-active-bg (solarized-color-blend "#93a61a" "#01323d" 0.2))
+ '(term-default-bg-color "#002732")
+ '(term-default-fg-color "#8d9fa1")
+ '(vc-annotate-background "#222222")
+ '(vc-annotate-background-mode nil)
+ '(vc-annotate-color-map
+   (list
+    (cons 20 "#87875f")
+    (cons 40 "#9e873f")
+    (cons 60 "#b5871f")
+    (cons 80 "#cc8800")
+    (cons 100 "#dd8d00")
+    (cons 120 "#ee9200")
+    (cons 140 "#ff9800")
+    (cons 160 "#d7923a")
+    (cons 180 "#af8c74")
+    (cons 200 "#8787AF")
+    (cons 220 "#92708f")
+    (cons 240 "#9e5a6f")
+    (cons 260 "#aa4450")
+    (cons 280 "#994d51")
+    (cons 300 "#895654")
+    (cons 320 "#785f55")
+    (cons 340 "#62686E")
+    (cons 360 "#62686E")))
+ '(vc-annotate-very-old-color nil)
+ '(weechat-color-list
+   (quote
+    (unspecified "#002732" "#01323d" "#ae1212" "#ec423a" "#687f00" "#93a61a" "#936d00" "#c49619" "#0069b0" "#3c98e0" "#a81761" "#e2468f" "#008981" "#3cafa5" "#8d9fa1" "#60767e")))
+ '(xterm-color-names
+   ["#01323d" "#ec423a" "#93a61a" "#c49619" "#3c98e0" "#e2468f" "#3cafa5" "#faf3e0"])
+ '(xterm-color-names-bright
+   ["#002732" "#db5823" "#62787f" "#60767e" "#8d9fa1" "#7a7ed2" "#9eacac" "#ffffee"]))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((((class color) (min-colors 89)) (:foreground "#839496" :background "#002b36"))))
- '(org-level-1 ((t (:inherit default :foreground "antique white")))))
+ )
 )
 
