@@ -249,7 +249,7 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-themes '(
                          sourcerer
                          hc-zenburn
-												 solarized-dark
+			 solarized-dark
                          solarized-light
                          spacemacs-dark
                          spacemacs-light
@@ -272,7 +272,7 @@ It should only modify the values of Spacemacs settings."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font '("Hack"
-                               :size 12
+                               :size 30
                                :width normal
                                :powerline-scale 1.1)
    ;;The leader key (default "SPC")
@@ -1398,8 +1398,8 @@ Version 2016-07-23"
 
 (setq org-startup-with-inline-images t)
 
-;;helm-mini and c-z cua
-(define-key helm-map (kbd "C-;") 'helm-execute-persistent-action)
+;;helm-mini and c-z cua -- got an error on this
+;;(define-key helm-map (kbd "C-;") 'helm-execute-persistent-action)
 
 
 (setq-default fill-column 130)
@@ -1663,6 +1663,12 @@ _vr_ reset      ^^                       ^^                 ^^
 
 
 ;;test20210623
+
+;;line wrap changes
+(setq-default fill-column 130)
+(add-hook 'org-mode-hook 'visual-line-mode)
+(add-hook 'org-mode-hook 'visual-fill-column-mode)
+(setq org-startup-indented t)
 
 
 
