@@ -794,7 +794,7 @@ you should place your code here."
   (evil-leader/set-key (kbd "b f 6") (lambda () (interactive) (find-file "r:/apps/Editorial/riverofreferencehome.org")))
   (evil-leader/set-key (kbd "b f m") (lambda () (interactive) (find-file "r:/apps/Editorial/meetings.org")))
   (evil-leader/set-key (kbd "b f s") (lambda () (interactive) (find-file-other-frame "r:/apps/Editorial/scratch.org")))
-
+  (evil-leader/set-key (kbd "b f b") (lambda () (interactive) (helm-mini)))
   ;; Replace with my own scratch buffer. no "switch-to-scratch-buffer"
   (evil-leader/set-key (kbd "b s") (lambda () (interactive) (find-file-other-frame "r:/apps/Editorial/scratch.org")))
 
@@ -1458,6 +1458,9 @@ Version 2016-07-23"
                                  :todo "WAITING"
                                  :order 20)
                           (:name "------------------------trivial------------------------"
+                                 :tag ("truckroll"))
+
+                          (:name "------------------------trivial------------------------"
                                  :priority<= "C"
                                  :tag ("Trivial" "Unimportant")
                                  :todo ("SOMEDAY" )
@@ -1470,6 +1473,8 @@ Version 2016-07-23"
 
 (setq org-capture-templates
       '(
+				("c" "High priority Todo" entry (file "r:/Apps/Editorial/inbox.org")
+         "* TODO [#A] !!! %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n")
         ("t" "Todo" entry (file "r:/Apps/Editorial/inbox.org")
          "* TODO %?\n%U" :empty-lines 1)
         ("T" "Todo with Clipboard" entry (file "r:/Apps/Editorial/inbox.org")
@@ -1484,6 +1489,9 @@ Version 2016-07-23"
          "* URL -  %?\n%U\n   %c" :empty-lines 1)
         )
       )
+
+
+
 
 (define-key org-read-date-minibuffer-local-map (kbd "C-f") (lambda () (interactive) (org-eval-in-calendar '(calendar-forward-day 1))))
 (define-key org-read-date-minibuffer-local-map (kbd "C-b") (lambda () (interactive) (org-eval-in-calendar '(calendar-backward-day 1))))
@@ -1662,11 +1670,12 @@ _vr_ reset      ^^                       ^^                 ^^
 (define-key org-mode-map "\C-e" 'org-end-of-line)
 
 
+(global-unset-key (kbd "C-M-t"))
 
+(setq org-habit-show-all-today t)
 
-
-
-
+;; C-? to show actions in helm-find-files
+(define-key helm-map (kbd "C-?")  'helm-select-action)
 
 )
 
@@ -1737,7 +1746,7 @@ This function is called at the very end of Spacemacs initialization."
  '(objed-cursor-color "#aa4450")
  '(org-agenda-files
    (quote
-    ("r:/Apps/Editorial/inbox.org" "r:/Apps/Editorial/todohome.org" "r:/Apps/Editorial/todowork.org")))
+    ("r:/Apps/Editorial/somedaymaybehome.org" "r:/Apps/Editorial/inbox.org" "r:/Apps/Editorial/todohome.org" "r:/Apps/Editorial/todowork.org")))
  '(org-special-ctrl-a/e t)
  '(package-selected-packages
    (quote
