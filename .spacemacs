@@ -1,24 +1,16 @@
-﻿;; -*- mode: emacs-lisp -*-
+;; -*- mode: emacs-lisp; lexical-binding: t -*-
 ;; This file is loaded by Spacemacs at startup.
 ;; It must be stored in your home directory.
 
-;; I have created a mess of my emacs file and here it is.
-
-;; Setting up windows
-;; Put the emacsclient shortcut in shell:startup.
-;; Set the shortcut to start in the folder that you would like per machine.
-;; Also "C:\Program Files\emacs\bin\runemacs.exe" -mm    to run in maximised mode.
-
-
 (defun dotspacemacs/layers ()
-  "Configuration Layers declaration.
-You should not put any user code in this function besides modifying the variable
-values."
+  "Layer configuration:
+This function should only modify configuration layer settings."
   (setq-default
    ;; Base distribution to use. This is a layer contained in the directory
    ;; `+distribution'. For now available distributions are `spacemacs-base'
    ;; or `spacemacs'. (default 'spacemacs)
-   dotspacemacs-distribution 'spacemacs
+   dotspacemacs-distribution 'spacemacs-base
+
    ;; Lazy installation of layers (i.e. layers are installed only when a file
    ;; with a supported type is opened). Possible values are `all', `unused'
    ;; and `nil'. `unused' will lazy install only unused layers (i.e. layers
@@ -29,19 +21,18 @@ values."
    ;; variable `dotspacemacs-configuration-layers' to install it.
    ;; (default 'unused)
    dotspacemacs-enable-lazy-installation 'unused
+
    ;; If non-nil then Spacemacs will ask for confirmation before installing
    ;; a layer lazily. (default t)
    dotspacemacs-ask-for-lazy-installation t
-   ;; If non-nil layers with lazy install support are lazy installed.
+
    ;; List of additional paths where to look for configuration layers.
    ;; Paths must have a trailing slash (i.e. `~/.mycontribs/')
    dotspacemacs-configuration-layer-path '()
+
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(yaml
-     ;;ansible
-     windows-scripts
-     themes-megapack
+   '(
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
@@ -51,19 +42,21 @@ values."
      ;; auto-completion
      ;; better-defaults
      emacs-lisp
-     pdf
-     ;; git
+     git
      ;; markdown
-     neotree
-     csv
-     ;; org
-     ;; (shell :variables
-     ;;        shell-default-height 30
-     ;;        shell-default-position 'bottom)
+     org
+      (shell :variables
+             shell-default-height 30
+             shell-default-position 'bottom)
      ;; spell-checking                                disabled 20181019
      ;; syntax-checking                                disabled 20181019
      ;; version-control
-     emacs-lisp
+     ;; ==== non-default ===
+     pdf
+     ;; yaml
+     ;; ansible
+     ;; windows-scripts
+     themes-megapack
      auto-completion
      (auto-completion :variables
                       auto-completion-return-key-behavior 'nil
@@ -83,15 +76,13 @@ values."
              :nick "highfi"
              )))
      autohotkey
-     org
      python
      html
      javascript
      xkcd
      ranger
-     shell
-;;     mylayer
-     git
+     ;; shell
+     ;; mylayer
      search-engine
      json
      ;; markdown
@@ -101,6 +92,7 @@ values."
      ;; spell-checking
      ;; syntax-checking
      ;; version-control
+     deft
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -115,7 +107,7 @@ values."
                                       csv-mode
                                       org-journal
                                       hide-lines
-                                      ;restart-emacs
+                                      restart-emacs
                                       bash-completion
 ;;                                      ssh
 ;;                                      ssh-agency
@@ -149,12 +141,15 @@ values."
                                       helm-org-rifle
                                       undo-fu
                                       undo-fu-session
-                                      indent-tools
+                                      ;indent-tools
                                       highlight-indent-guides
                                       helm-org
                                       peep-dired
                                       org-super-agenda
                                       intellij-theme
+                                      open-junk-file
+                                      manage-minor-mode
+                                      org-drill
                                       )
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -183,6 +178,25 @@ It should only modify the values of Spacemacs settings."
   ;; This setq-default sexp is an exhaustive list of all the supported
   ;; spacemacs settings.
   (setq-default
+   ;; If non-nil then enable support for the portable dumper. You'll need
+   ;; to compile Emacs 27 from source following the instructions in file
+   ;; EXPERIMENTAL.org at to root of the git repository.
+   ;; (default nil)
+   dotspacemacs-enable-emacs-pdumper nil
+
+   ;; Name of executable file pointing to emacs 27+. This executable must be
+   ;; in your PATH.
+   ;; (default "emacs")
+   dotspacemacs-emacs-pdumper-executable-file "emacs"
+
+   ;; Name of the Spacemacs dump file. This is the file will be created by the
+   ;; portable dumper in the cache directory under dumps sub-directory.
+   ;; To load it when starting Emacs add the parameter `--dump-file'
+   ;; when invoking Emacs 27.1 executable on the command line, for instance:
+   ;;   ./emacs --dump-file=$HOME/.emacs.d/.cache/dumps/spacemacs-27.1.pdmp
+   ;; (default (format "spacemacs-%s.pdmp" emacs-version))
+   dotspacemacs-emacs-dumper-dump-file (format "spacemacs-%s.pdmp" emacs-version)
+
    ;; If non-nil ELPA repositories are contacted via HTTPS whenever it's
    ;; possible. Set it to nil if you have no way to use HTTPS in your
    ;; environment, otherwise it is strongly recommended to let it set to t.
@@ -190,31 +204,46 @@ It should only modify the values of Spacemacs settings."
    ;; `--insecure' which forces the value of this variable to nil.
    ;; (default t)
    dotspacemacs-elpa-https t
+
    ;; Maximum allowed time in seconds to contact an ELPA repository.
    ;; (default 5)
    dotspacemacs-elpa-timeout 5
+
    ;; Set `gc-cons-threshold' and `gc-cons-percentage' when startup finishes.
    ;; This is an advanced option and should not be changed unless you suspect
    ;; performance issues due to garbage collection operations.
    ;; (default '(100000000 0.1))
    dotspacemacs-gc-cons '(100000000 0.1)
 
+   ;; Set `read-process-output-max' when startup finishes.
+   ;; This defines how much data is read from a foreign process.
+   ;; Setting this >= 1 MB should increase performance for lsp servers
+   ;; in emacs 27.
+   ;; (default (* 1024 1024))
+   dotspacemacs-read-process-output-max (* 1024 1024)
+
    ;; If non-nil then Spacelpa repository is the primary source to install
-   ;; a locked version of packages. If nil then Spacemacs will install the lastest
-   ;; version of packages from MELPA. (default nil)
-   dotspacemacs-use-spacelpa nil
-   ;; If non-nil then verify the signature for downloaded Spacelpa archives.
+   ;; a locked version of packages. If nil then Spacemacs will install the
+   ;; latest version of packages from MELPA. Spacelpa is currently in
+   ;; experimental state please use only for testing purposes.
    ;; (default nil)
-   dotspacemacs-verify-spacelpa-archives nil
+   dotspacemacs-use-spacelpa nil
+
+   ;; If non-nil then verify the signature for downloaded Spacelpa archives.
+   ;; (default t)
+   dotspacemacs-verify-spacelpa-archives t
+
    ;; If non-nil then spacemacs will check for updates at startup
    ;; when the current branch is not `develop'. Note that checking for
    ;; new versions works via git commands, thus it calls GitHub services
    ;; whenever you start Emacs. (default nil)
    dotspacemacs-check-for-update nil
+
    ;; If non-nil, a form that evaluates to a package directory. For example, to
    ;; use different package directories for different Emacs versions, set this
    ;; to `emacs-version'. (default 'emacs-version)
    dotspacemacs-elpa-subdirectory 'emacs-version
+
    ;; One of `vim', `emacs' or `hybrid'.
    ;; `hybrid' is like `vim' except that `insert state' is replaced by the
    ;; `hybrid state' with `emacs' key bindings. The value can also be a list
@@ -222,8 +251,12 @@ It should only modify the values of Spacemacs settings."
    ;; section of the documentation for details on available variables.
    ;; (default 'vim)
    dotspacemacs-editing-style 'emacs
-   ;; If non-nil output loading progress in `*Messages*' buffer. (default nil)
-   dotspacemacs-verbose-loading nil
+
+   ;; If non-nil show the version string in the Spacemacs buffer. It will
+   ;; appear as (spacemacs version)@(emacs version)
+   ;; (default t)
+   dotspacemacs-startup-buffer-show-version t
+
    ;; Specify the startup banner. Default value is `official', it displays
    ;; the official spacemacs logo. An integer value is the index of text
    ;; banner, `random' chooses a random text banner in `core/banners'
@@ -231,22 +264,54 @@ It should only modify the values of Spacemacs settings."
    ;; by your Emacs build.
    ;; If the value is nil then no banner is displayed. (default 'official)
    dotspacemacs-startup-banner 'official
+
    ;; List of items to show in startup buffer or an association list of
    ;; the form `(list-type . list-size)`. If nil then it is disabled.
    ;; Possible values for list-type are:
-   ;; `recents' `bookmarks' `projects' `agenda' `todos'.
+   ;; `recents' `recents-by-project' `bookmarks' `projects' `agenda' `todos'.
    ;; List sizes may be nil, in which case
    ;; `spacemacs-buffer-startup-lists-length' takes effect.
+   ;; The exceptional case is `recents-by-project', where list-type must be a
+   ;; pair of numbers, e.g. `(recents-by-project . (7 .  5))', where the first
+   ;; number is the project limit and the second the limit on the recent files
+   ;; within a project.
    dotspacemacs-startup-lists '((recents . 5)
                                 (projects . 7))
+
    ;; True if the home buffer should respond to resize events. (default t)
    dotspacemacs-startup-buffer-responsive t
+
+   ;; Show numbers before the startup list lines. (default t)
+   dotspacemacs-show-startup-list-numbers t
+
+   ;; The minimum delay in seconds between number key presses. (default 0.4)
+   dotspacemacs-startup-buffer-multi-digit-delay 0.4
+
+   ;; Default major mode for a new empty buffer. Possible values are mode
+   ;; names such as `text-mode'; and `nil' to use Fundamental mode.
+   ;; (default `text-mode')
+   dotspacemacs-new-empty-buffer-major-mode 'text-mode
+
    ;; Default major mode of the scratch buffer (default `text-mode')
    dotspacemacs-scratch-mode 'text-mode
+
+   ;; If non-nil, *scratch* buffer will be persistent. Things you write down in
+   ;; *scratch* buffer will be saved and restored automatically.
+   dotspacemacs-scratch-buffer-persistent nil
+
+   ;; If non-nil, `kill-buffer' on *scratch* buffer
+   ;; will bury it instead of killing.
+   dotspacemacs-scratch-buffer-unkillable nil
+
+   ;; Initial message in the scratch buffer, such as "Welcome to Spacemacs!"
+   ;; (default nil)
+   dotspacemacs-initial-scratch-message nil
+
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
    dotspacemacs-themes '(
+			 doom-peacock
                          sourcerer
                          hc-zenburn
 			 solarized-dark
@@ -271,131 +336,156 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
+   ;; AH - 15 for desktop, 24 for laptop
    dotspacemacs-default-font '("Hack"
-                               :size 30
+                               :size 15
                                :width normal
                                :powerline-scale 1.1)
    ;;The leader key (default "SPC")
    dotspacemacs-leader-key "SPC"
+
    ;; The key used for Emacs commands `M-x' (after pressing on the leader key).
    ;; (default "SPC")
    dotspacemacs-emacs-command-key "SPC"
+
    ;; The key used for Vim Ex commands (default ":")
    dotspacemacs-ex-command-key ":"
+
    ;; The leader key accessible in `emacs state' and `insert state'
    ;; (default "M-m")
    dotspacemacs-emacs-leader-key "M-m"
+
    ;; Major mode leader key is a shortcut key which is the equivalent of
    ;; pressing `<leader> m`. Set it to `nil` to disable it. (default ",")
    dotspacemacs-major-mode-leader-key ","
+
    ;; Major mode leader key accessible in `emacs state' and `insert state'.
-   ;; (default "C-M-m")
-   dotspacemacs-major-mode-emacs-leader-key "C-M-m"
+   ;; (default "C-M-m" for terminal mode, "<M-return>" for GUI mode).
+   ;; Thus M-RET should work as leader key in both GUI and terminal modes.
+   ;; C-M-m also should work in terminal mode, but not in GUI mode.
+   dotspacemacs-major-mode-emacs-leader-key (if window-system "<M-return>" "C-M-m")
+
    ;; These variables control whether separate commands are bound in the GUI to
-   ;; the key pairs C-i, TAB and C-m, RET.
-   ;; Setting it to a non-nil value, allows for separate commands under <C-i>
-   ;; and TAB or <C-m> and RET.
+   ;; the key pairs `C-i', `TAB' and `C-m', `RET'.
+   ;; Setting it to a non-nil value, allows for separate commands under `C-i'
+   ;; and TAB or `C-m' and `RET'.
    ;; In the terminal, these pairs are generally indistinguishable, so this only
    ;; works in the GUI. (default nil)
    dotspacemacs-distinguish-gui-tab nil
-   ;; If non nil `Y' is remapped to `y$' in Evil states. (default nil)
-   dotspacemacs-remap-Y-to-y$ nil
-   ;; If non-nil, the shift mappings `<' and `>' retain visual state if used
-   ;; there. (default t)
-   dotspacemacs-retain-visual-state-on-shift t
-   ;; If non-nil, J and K move lines up and down when in visual mode.
-   ;; (default nil)
-   dotspacemacs-visual-line-move-text nil
-   ;; If non nil, inverse the meaning of `g' in `:substitute' Evil ex-command.
-   ;; (default nil)
-   dotspacemacs-ex-substitute-global nil
+
    ;; Name of the default layout (default "Default")
    dotspacemacs-default-layout-name "Default"
-   ;; If non nil the default layout name is displayed in the mode-line.
+
+   ;; If non-nil the default layout name is displayed in the mode-line.
    ;; (default nil)
    dotspacemacs-display-default-layout nil
-   ;; If non nil then the last auto saved layouts are resume automatically upon
+
+   ;; If non-nil then the last auto saved layouts are resumed automatically upon
    ;; start. (default nil)
    dotspacemacs-auto-resume-layouts nil
+
+   ;; If non-nil, auto-generate layout name when creating new layouts. Only has
+   ;; effect when using the "jump to layout by number" commands. (default nil)
+   dotspacemacs-auto-generate-layout-names nil
+
    ;; Size (in MB) above which spacemacs will prompt to open the large file
    ;; literally to avoid performance issues. Opening a file literally means that
    ;; no major mode or minor modes are active. (default is 1)
-   dotspacemacs-large-file-size 1
+   dotspacemacs-large-file-size 2
+
    ;; Location where to auto-save files. Possible values are `original' to
    ;; auto-save the file in-place, `cache' to auto-save the file to another
    ;; file stored in the cache directory and `nil' to disable auto-saving.
    ;; (default 'cache)
    dotspacemacs-auto-save-file-location 'cache
+
    ;; Maximum number of rollback slots to keep in the cache. (default 5)
    dotspacemacs-max-rollback-slots 5
-   ;; If non-nil, `helm' will try to minimize the space it uses. (default nil)
-   dotspacemacs-helm-resize nil
-   ;; if non-nil, the helm header is hidden when there is only one source.
-   ;; (default nil)
-   dotspacemacs-helm-no-header nil
-   ;; define the position to display `helm', options are `bottom', `top',
-   ;; `left', or `right'. (default 'bottom)
-   dotspacemacs-helm-position 'bottom
-   ;; Controls fuzzy matching in helm. If set to `always', force fuzzy matching
-   ;; in all non-asynchronous sources. If set to `source', preserve individual
-   ;; source settings. Else, disable fuzzy matching in all sources.
-   ;; (default 'always)
-   dotspacemacs-helm-use-fuzzy 'always
-   ;; If non-nil, the paste transient-state is enabled. While enabled, pressing
-   ;; `p' several times cycles through the elements in the `kill-ring'.
-   ;; (default nil)
+
+   ;; If non-nil, the paste transient-state is enabled. While enabled, after you
+   ;; paste something, pressing `C-j' and `C-k' several times cycles through the
+   ;; elements in the `kill-ring'. (default nil)
    dotspacemacs-enable-paste-transient-state nil
+
    ;; Which-key delay in seconds. The which-key buffer is the popup listing
    ;; the commands bound to the current keystroke sequence. (default 0.4)
    dotspacemacs-which-key-delay 0.4
+
    ;; Which-key frame position. Possible values are `right', `bottom' and
    ;; `right-then-bottom'. right-then-bottom tries to display the frame to the
    ;; right; if there is insufficient space it displays it at the bottom.
    ;; (default 'bottom)
    dotspacemacs-which-key-position 'bottom
+
    ;; Control where `switch-to-buffer' displays the buffer. If nil,
    ;; `switch-to-buffer' displays the buffer in the current window even if
    ;; another same-purpose window is available. If non-nil, `switch-to-buffer'
    ;; displays the buffer in a same-purpose window even if the buffer can be
    ;; displayed in the current window. (default nil)
    dotspacemacs-switch-to-buffer-prefers-purpose nil
+
    ;; If non-nil a progress bar is displayed when spacemacs is loading. This
    ;; may increase the boot time on some systems and emacs builds, set it to
    ;; nil to boost the loading time. (default t)
    dotspacemacs-loading-progress-bar t
+
    ;; If non-nil the frame is fullscreen when Emacs starts up. (default nil)
    ;; (Emacs 24.4+ only)
    dotspacemacs-fullscreen-at-startup nil
+
    ;; If non-nil `spacemacs/toggle-fullscreen' will not use native fullscreen.
    ;; Use to disable fullscreen animations in OSX. (default nil)
    dotspacemacs-fullscreen-use-non-native nil
-   ;; If non nil the frame is maximized when Emacs starts up.
+
+   ;; If non-nil the frame is maximized when Emacs starts up.
    ;; Takes effect only if `dotspacemacs-fullscreen-at-startup' is nil.
    ;; (default nil) (Emacs 24.4+ only)
    dotspacemacs-maximized-at-startup nil
+
+   ;; If non-nil the frame is undecorated when Emacs starts up. Combine this
+   ;; variable with `dotspacemacs-maximized-at-startup' in OSX to obtain
+   ;; borderless fullscreen. (default nil)
+   dotspacemacs-undecorated-at-startup nil
+
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's active or selected.
    ;; Transparency can be toggled through `toggle-transparency'. (default 90)
    dotspacemacs-active-transparency 90
+
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's inactive or deselected.
    ;; Transparency can be toggled through `toggle-transparency'. (default 90)
    dotspacemacs-inactive-transparency 90
-   ;; If non nil show the titles of transient states. (default t)
+
+   ;; If non-nil show the titles of transient states. (default t)
    dotspacemacs-show-transient-state-title t
-   ;; If non nil show the color guide hint for transient state keys. (default t)
+
+   ;; If non-nil show the color guide hint for transient state keys. (default t)
    dotspacemacs-show-transient-state-color-guide t
-   ;; If non nil unicode symbols are displayed in the mode line. (default t)
+
+   ;; If non-nil unicode symbols are displayed in the mode line.
+   ;; If you use Emacs as a daemon and wants unicode characters only in GUI set
+   ;; the value to quoted `display-graphic-p'. (default t)
    dotspacemacs-mode-line-unicode-symbols nil
-   ;; If non nil smooth scrolling (native-scrolling) is enabled. Smooth
+
+   ;; If non-nil smooth scrolling (native-scrolling) is enabled. Smooth
    ;; scrolling overrides the default behavior of Emacs which recenters point
    ;; when it reaches the top or bottom of the screen. (default t)
    dotspacemacs-smooth-scrolling t
+
+   ;; Show the scroll bar while scrolling. The auto hide time can be configured
+   ;; by setting this variable to a number. (default t)
+   dotspacemacs-scroll-bar-while-scrolling t
+
    ;; Control line numbers activation.
-   ;; If set to `t' or `relative' line numbers are turned on in all `prog-mode' and
-   ;; `text-mode' derivatives. If set to `relative', line numbers are relative.
+   ;; If set to `t', `relative' or `visual' then line numbers are enabled in all
+   ;; `prog-mode' and `text-mode' derivatives. If set to `relative', line
+   ;; numbers are relative. If set to `visual', line numbers are also relative,
+   ;; but only visual lines are counted. For example, folded lines will not be
+   ;; counted and wrapped lines are counted as multiple lines.
    ;; This variable can also be set to a property list for finer control:
    ;; '(:relative nil
+   ;;   :visual nil
    ;;   :disabled-for-modes dired-mode
    ;;                       doc-view-mode
    ;;                       markdown-mode
@@ -403,51 +493,140 @@ It should only modify the values of Spacemacs settings."
    ;;                       pdf-view-mode
    ;;                       text-mode
    ;;   :size-limit-kb 1000)
+   ;; When used in a plist, `visual' takes precedence over `relative'.
    ;; (default nil)
    dotspacemacs-line-numbers nil
-   ;; Code folding method. Possible values are `evil' and `origami'.
+
+   ;; Code folding method. Possible values are `evil', `origami' and `vimish'.
    ;; (default 'evil)
    dotspacemacs-folding-method 'evil
-   ;; If non-nil `smartparens-strict-mode' will be enabled in programming modes.
+
+   ;; If non-nil and `dotspacemacs-activate-smartparens-mode' is also non-nil,
+   ;; `smartparens-strict-mode' will be enabled in programming modes.
    ;; (default nil)
    dotspacemacs-smartparens-strict-mode nil
+
+   ;; If non-nil smartparens-mode will be enabled in programming modes.
+   ;; (default t)
+   dotspacemacs-activate-smartparens-mode t
+
    ;; If non-nil pressing the closing parenthesis `)' key in insert mode passes
-   ;; over any automatically added closing parenthesis, bracket, quote, etc…
+   ;; over any automatically added closing parenthesis, bracket, quote, etc...
    ;; This can be temporary disabled by pressing `C-q' before `)'. (default nil)
    dotspacemacs-smart-closing-parenthesis nil
+
    ;; Select a scope to highlight delimiters. Possible values are `any',
    ;; `current', `all' or `nil'. Default is `all' (highlight any scope and
    ;; emphasis the current one). (default 'all)
    dotspacemacs-highlight-delimiters 'all
+
+   ;; If non-nil, start an Emacs server if one is not already running.
+   ;; (default nil)
+   dotspacemacs-enable-server nil
+
+   ;; Set the emacs server socket location.
+   ;; If nil, uses whatever the Emacs default is, otherwise a directory path
+   ;; like \"~/.emacs.d/server\". It has no effect if
+   ;; `dotspacemacs-enable-server' is nil.
+   ;; (default nil)
+   dotspacemacs-server-socket-dir nil
+
    ;; If non-nil, advise quit functions to keep server open when quitting.
    ;; (default nil)
    dotspacemacs-persistent-server nil
+
    ;; List of search tool executable names. Spacemacs uses the first installed
-   ;; tool of the list. Supported tools are `ag', `pt', `ack' and `grep'.
-   ;; (default '("ag" "pt" "ack" "grep"))
-   dotspacemacs-search-tools '("ag" "pt" "ack" "grep")
-   ;; The default package repository used if no explicit repository has been
-   ;; specified with an installed package.
-   ;; Not used for now. (default nil)
-   dotspacemacs-default-package-repository nil
+   ;; tool of the list. Supported tools are `rg', `ag', `pt', `ack' and `grep'.
+   ;; (default '("rg" "ag" "pt" "ack" "grep"))
+   dotspacemacs-search-tools '("rg" "ag" "pt" "ack" "grep")
+
+   ;; Format specification for setting the frame title.
+   ;; %a - the `abbreviated-file-name', or `buffer-name'
+   ;; %t - `projectile-project-name'
+   ;; %I - `invocation-name'
+   ;; %S - `system-name'
+   ;; %U - contents of $USER
+   ;; %b - buffer name
+   ;; %f - visited file name
+   ;; %F - frame name
+   ;; %s - process status
+   ;; %p - percent of buffer above top of window, or Top, Bot or All
+   ;; %P - percent of buffer above bottom of window, perhaps plus Top, or Bot or All
+   ;; %m - mode name
+   ;; %n - Narrow if appropriate
+   ;; %z - mnemonics of buffer, terminal, and keyboard coding systems
+   ;; %Z - like %z, but including the end-of-line format
+   ;; If nil then Spacemacs uses default `frame-title-format' to avoid
+   ;; performance issues, instead of calculating the frame title by
+   ;; `spacemacs/title-prepare' all the time.
+   ;; (default "%I@%S")
+   dotspacemacs-frame-title-format "%I@%S"
+
+   ;; Format specification for setting the icon title format
+   ;; (default nil - same as frame-title-format)
+   dotspacemacs-icon-title-format nil
+
+   ;; Show trailing whitespace (default t)
+   dotspacemacs-show-trailing-whitespace t
+
    ;; Delete whitespace while saving buffer. Possible values are `all'
    ;; to aggressively delete empty line and long sequences of whitespace,
    ;; `trailing' to delete only the whitespace at end of lines, `changed' to
    ;; delete only whitespace for changed lines or `nil' to disable cleanup.
    ;; (default nil)
    dotspacemacs-whitespace-cleanup nil
-   ))
+
+   ;; If non-nil activate `clean-aindent-mode' which tries to correct
+   ;; virtual indentation of simple modes. This can interfere with mode specific
+   ;; indent handling like has been reported for `go-mode'.
+   ;; If it does deactivate it here.
+   ;; (default t)
+   dotspacemacs-use-clean-aindent-mode t
+
+   ;; Accept SPC as y for prompts if non-nil. (default nil)
+   dotspacemacs-use-SPC-as-y nil
+
+   ;; If non-nil shift your number row to match the entered keyboard layout
+   ;; (only in insert state). Currently supported keyboard layouts are:
+   ;; `qwerty-us', `qwertz-de' and `querty-ca-fr'.
+   ;; New layouts can be added in `spacemacs-editing' layer.
+   ;; (default nil)
+   dotspacemacs-swap-number-row nil
+
+   ;; Either nil or a number of seconds. If non-nil zone out after the specified
+   ;; number of seconds. (default nil)
+   dotspacemacs-zone-out-when-idle nil
+
+   ;; Run `spacemacs/prettify-org-buffer' when
+   ;; visiting README.org files of Spacemacs.
+   ;; (default nil)
+   dotspacemacs-pretty-docs nil
+
+   ;; If nil the home buffer shows the full path of agenda items
+   ;; and todos. If non-nil only the file name is shown.
+   dotspacemacs-home-shorten-agenda-source nil
+
+   ;; If non-nil then byte-compile some of Spacemacs files.
+   dotspacemacs-byte-compile nil))
+
+(defun dotspacemacs/user-env ()
+  "Environment variables setup.
+This function defines the environment variables for your Emacs session. By
+default it calls `spacemacs/load-spacemacs-env' which loads the environment
+variables declared in `~/.spacemacs.env' or `~/.spacemacs.d/.spacemacs.env'.
+See the header of this file for more information."
+  (spacemacs/load-spacemacs-env))
 
 (defun dotspacemacs/user-init ()
-  "Initialization function for user code.
-It is called immediately after `dotspacemacs/init', before layer configuration
-executes.
- This function is mostly useful for variables that need to be set
-before packages are loaded. If you are unsure, you should try in setting them in
-`dotspacemacs/user-config' first."
-
-
+  "Initialization for user code:
+This function is called immediately after `dotspacemacs/init', before layer
+configuration.
+It is mostly for variables that should be set before packages are loaded.
+If you are unsure, try setting them in `dotspacemacs/user-config' first."
   (cua-mode 1)
+ ;; (setq org-use-speed-commands
+  ;;      (lambda () (and (looking-at org-outline-regexp) (looking-back "^\**"))))
+
 
   ;; (defvar org-fancy-list-bullets
   ;;   '(("^ +\\([*]\\) "   ; asterisks need a space first to skip headings
@@ -456,10 +635,8 @@ before packages are loaded. If you are unsure, you should try in setting them in
   ;;      (1 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
   ;; (font-lock-add-keywords 'org-mode org-fancy-list-bullets)
 
-
-
-
-
+  ;; hopefully make c-backspace not save to  clipboard. 
+;  (setq save-interprogram-paste-before-kill t)
 
 ;;solarized options and alignment.
   (setq solarized-scale-org-headlines nil)
@@ -475,18 +652,12 @@ before packages are loaded. If you are unsure, you should try in setting them in
   (setq solarized-height-plus-8 1.0)
   (setq solarized-height-plus-9 1.0)
 
-;; use org speed keys
-  (setq org-use-speed-commands t)
-  (setq org-speed-commands-user (quote (("i" . org-metaup)
-                                        ("k" . org-metadown)
-                                        ("'" . org-cut-subtree)
-                                        ("h" . org-cycle)
-                                        ("H" . org-shifttab)
-                                        ("q" . kill-this-buffer)
-                                        ("m" . spacemacs/toggle-maximize-buffer)
-                                        ("d" . widen)
-                                        (";" . jpk/C-<return>)
-                                        )))
+
+ ;;deft  varialbes
+  (setq deft-directory "r:/apps/Editorial"
+        deft-extensions '("org" "txt")
+        ;;deft-recursive t
+        )
 
 
 ;; Org markup charactors hide
@@ -522,8 +693,17 @@ before packages are loaded. If you are unsure, you should try in setting them in
 
 
 (global-unset-key (kbd "C-/"))
-(global-set-key (kbd "C-w") 'kill-this-buffer) ; 【Ctrl+w】; Microsoft Windows style
 
+
+
+;;(global-set-key (kbd "C-w") 'kill-this-buffer) ; 【Ctrl+w】; Microsoft Windows style
+(defun kill-this-buffer-and-tab()
+  "kill the buffer and tab"
+  (interactive)
+  (kill-this-buffer)
+  (tab-close)
+  )
+(global-set-key (kbd "C-w") 'kill-this-buffer-and-tab)
 
 
 
@@ -634,6 +814,7 @@ before packages are loaded. If you are unsure, you should try in setting them in
 
 
 
+
 ;;calc bps  I don't think this works
 (setq math-additional-units
       '((bit    nil           "Bit")
@@ -678,23 +859,55 @@ before packages are loaded. If you are unsure, you should try in setting them in
    (global-set-key [M-up] 'move-text-up)
    (global-set-key [M-down] 'move-text-down)
 
-
   )
 
-(defun dotspacemacs/user-config ()
-  "Configuration function for user code.
-This function is called at the very end of Spacemacs initialization after
-layers configuration.
-This is the place where most of your configurations should be done. Unless it is
-explicitly specified that a variable should be set before a package is loaded,
-you should place your code here."
 
+(defun dotspacemacs/user-load ()
+  "Library to load while dumping.
+This function is called only while dumping Spacemacs configuration. You can
+`require' or `load' the libraries of your choice that will be included in the
+dump.")
+
+
+(defun dotspacemacs/user-config ()
+  "Configuration for user code:
+This function is called at the very end of Spacemacs startup, after layer
+configuration.
+Put your configuration code here, except for variables that should be set
+before packages are loaded."
+
+  ;; space m-x
+;;  (evil-leader/set-key (kbd "SPC") 'spacemacs/helm-M-x-fuzzy-matching)
+
+  
+  ;; use org speed keys
+;;  (setq org-use-speed-commands t)
+  ;; (setq org-speed-commands-user (quote (
+  ;;                                       ("i" . org-metaup)
+  ;;       				("k" . org-metadown)
+  ;;                                       ("'" . org-cut-subtree)
+  ;;                                       ("h" . org-cycle)
+  ;;                                       ("H" . org-shifttab)
+  ;;                                       ("q" . kill-this-buffer)
+  ;;                                       ("m" . spacemacs/toggle-maximize-buffer)
+  ;;                                       ("d" . widen)
+  ;;                                       (";" . jpk/C-<return>)
+  ;;                                       )))
+
+
+  ;;undo keys
+  ;;(global-undo-tree-mode -1)                                          ;;; issue with new spacemacs versionf
+  (global-unset-key (kbd "C-z"))
+  (global-unset-key (kbd "C-y"))
+  (define-key evil-emacs-state-map (kbd "C-z") 'undo-fu-only-undo)
+  ;; (global-set-key (kbd "C-z") 'undo-fu-only-undo)
+  (global-set-key (kbd "C-y") 'undo-fu-only-redo)
 
   (defun ask-before-closing ()
     "Close only if y was pressed."
     (interactive)
     (if (y-or-n-p (format "Are you sure you want to close Spacemacs? "))
-        (spacemacs/prompt-kill-emacs)                                                                                            
+        (spacemacs/prompt-kill-emacs)
       (message "Canceled frame close")))
 
   (when (daemonp)
@@ -703,16 +916,16 @@ you should place your code here."
 
   (evil-leader/set-key (kbd "q q") 'ask-before-closing)
 
+  ;;change new untilled file -- org auto save
+  (evil-leader/set-key (kbd "f N") 'open-junk-file)
+  (evil-leader/set-key (kbd "b N") 'open-junk-file)
 
+  (setq open-junk-file-format "r:/apps/editorial/org-temp/Untitled-%Y-%m%d-%H%M%S.org")
 
-
-;;change junk file directory
-  (setq open-junk-file-format "r:/apps/editorial/junk/%Y-%m%d-%H%M%S.")
-
-  ;; Save all org files every 30 seconds. Use file versioning if things go bad.
+;; Save all org files every 30 seconds. Use file versioning if things go bad.
   (run-with-idle-timer 30 t 'org-save-all-org-buffers)
 
-  ;; line numbers
+;; line numbers
 ;;  (global-linum-mode)
 
   ;; swiper instead of helm-swoop
@@ -727,20 +940,10 @@ you should place your code here."
 
   ;; vdiff
   (evil-leader/set-key (kbd "a v v") 'vdiff-buffers)
-
-  ;; vdiff
   (evil-leader/set-key (kbd "a v f") 'vdiff-files)
-
-  ;; vdiff
   (evil-leader/set-key (kbd "a v h") 'vdiff-hydra/body)
-
-  ;; vdiff
   (evil-leader/set-key (kbd "a v c") 'vdiff-current-file)
-
-  ;; vdiff
   (evil-leader/set-key (kbd "a v q") 'vdiff-quit)
-
-  ;; vdiff
   (evil-leader/set-key (kbd "a v Q") 'vdiff-quit)
 
   ;;avy-goto-char-timer instead of avy-goto-char
@@ -752,22 +955,26 @@ you should place your code here."
   ;; org refile on org menu
   (evil-leader/set-key (kbd "a o r") 'org-refile)
 
+
+  ;; I'm going to try to use tab bar (tabs)
   ;; need c-tab for buffer switching
 ;;  (define-key org-mode-map (kbd "C-<tab>") nil)
-  (global-set-key [(control tab)] 'ebs-switch-buffer)
+;;  (global-set-key [(control tab)] 'ebs-switch-buffer)
 
   ;; ebs
-  (evil-leader/set-key "TAB" 'ebs-switch-buffer)
+;  (evil-leader/set-key "TAB" 'ebs-switch-buffer)
 
+  ;;  (load-file "~/.emacs.d/private/local/ebs.el")
+                                        ;  (load-file "r:/apps/emacs/private/local/ebs.el")
+                                        ;  (ebs-initialize)
+
+  
   ;; org searching
   (evil-leader/set-key (kbd "s o r") 'helm-org-rifle)
 
   ;;searching through all  org headlines
   (evil-leader/set-key (kbd "s o h") 'helm-org-agenda-files-headings)
 
-;;  (load-file "~/.emacs.d/private/local/ebs.el")
-  (load-file "r:/apps/emacs/private/local/ebs.el")
-  (ebs-initialize)
 
   ;; browse file directory in explorer
   (evil-leader/set-key (kbd "f O") 'browse-file-directory)
@@ -784,6 +991,30 @@ you should place your code here."
   ;; Recent directory
   (evil-leader/set-key (kbd "f d") 'bjm/ivy-dired-recent-dirs)
 
+  ;; Restart-emacs
+  (evil-leader/set-key (kbd "q r") 'restart-emacs)
+
+  ;; comment or uncomment region
+  (evil-leader/set-key (kbd ";") 'comment-or-uncomment-region)
+
+
+  ;; Tab-bar-mode - default for emacs 27 (tabs)
+  (evil-leader/set-key (kbd "t C-f") 'find-file-other-tab)
+  (evil-leader/set-key (kbd "t RET") 'tab-bar-select-tab-by-name)
+  (evil-leader/set-key (kbd "t 0") 'tab-close)
+  (evil-leader/set-key (kbd "t 1") 'tab-close-other)
+  (evil-leader/set-key (kbd "t 2") 'tab-new)
+  (evil-leader/set-key (kbd "t b") 'switch-to-buffer-other-tab)
+  (evil-leader/set-key (kbd "t d") 'dired-other-tab)
+  (evil-leader/set-key (kbd "t f") 'find-file-other-tab)
+  (evil-leader/set-key (kbd "t m") 'tab-move)
+  (evil-leader/set-key (kbd "t o") 'tab-next)
+  (evil-leader/set-key (kbd "t p") 'project-other-tab-command)
+  (evil-leader/set-key (kbd "t r") 'tab-rename)
+    
+  ;; space m-x
+;;  (evil-leader/set-key (kbd "A") 'spacemacs/helm-M-x-fuzzy-matching)
+
   ;; My Favorite files
   (evil-leader/set-key (kbd "b f 0") (lambda () (interactive) (find-file "r:/apps/Editorial/inbox.org")))
   (evil-leader/set-key (kbd "b f 1") (lambda () (interactive) (find-file "r:/apps/Editorial/todowork.org")))
@@ -798,13 +1029,62 @@ you should place your code here."
   ;; Replace with my own scratch buffer. no "switch-to-scratch-buffer"
   (evil-leader/set-key (kbd "b s") (lambda () (interactive) (find-file-other-frame "r:/apps/Editorial/scratch.org")))
 
-  (defun open-scratch-org-buffer-new-frame ()
-                    "Open my scratch buffer in  a new frame"
-                    (interactive)
-                    (find-file-other-frame "r:/apps/Editorial/scratch.org")
-                    )
+  ;; (defun open-scratch-org-buffer-new-frame ()
+  ;;                   "Open my scratch buffer in  a new frame"
+  ;;                   (interactive)
+  ;;                   (find-file-other-frame "r:/apps/Editorial/scratch.org")
+  ;;                   )
+;(global-set-key (kbd "C-`") 'open-scratch-org-buffer-new-frame)
 
-(global-set-key (kbd "C-`") 'open-scratch-org-buffer-new-frame)
+(defun open-scratch-org-buffer-new-tab ()
+  "Open my scratch buffer in  a new tab"
+  (interactive)
+  (tab-new)
+  (find-file "r:/apps/Editorial/scratch.org")  
+  )
+(global-set-key (kbd "C-`") 'open-scratch-org-buffer-new-tab)
+
+
+(defun get-my-tabs-right ()
+  "Open all my orgs in tabs"
+  (interactive)
+(tab-close-other)
+(tab-new)
+(find-file "r:/apps/Editorial/inbox.org")
+(tab-new)
+(find-file "r:/apps/Editorial/todowork.org")
+(tab-new)
+(find-file "r:/apps/Editorial/obi1kbwork.org")
+(tab-new)
+(find-file "r:/apps/Editorial/riverofreferencework.org")
+(tab-new)
+(find-file "r:/apps/Editorial/todohome.org")
+(tab-new)
+(find-file "r:/apps/Editorial/obi1kbhome.org")
+(tab-new)
+(find-file "r:/apps/Editorial/riverofreferencehome.org")
+(tab-new)
+(find-file "r:/apps/Editorial/meetings.org")
+)
+
+
+
+
+
+(defhydra hydra-tab-bar (:color amaranth)
+  "Tab Bar Operations"
+  ("t" tab-new "Create a new tab" :column "Creation")
+  ("d" dired-other-tab "Open Dired in another tab")
+  ("f" find-file-other-tab "Find file in another tab")
+  ("0" tab-close "Close current tab")
+  ("m" tab-move "Move current tab" :column "Management")
+  ("r" tab-rename "Rename Tab")
+  ("<return>" tab-bar-select-tab-by-name "Select tab by name" :column "Navigation")
+  ("l" tab-next "Next Tab")
+  ("j" tab-previous "Previous Tab")
+  ("q" nil "Exit" :exit t))
+
+(evil-leader/set-key (kbd "t .") (lambda () (interactive) (hydra-tab-bar/body)))
 
 
   (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
@@ -868,7 +1148,7 @@ you should place your code here."
 ;;  (setq mouse-drag-copy-region t)
  ;; (global-set-key [mouse-3] 'mouse-yank-at-click)
   (setq mouse-wheel-scroll-amount '(3 ((shift) . 1) ((control) .nil)))
-  (setq mouse-wheel-progressive-speed nil)
+  (setq mouse-wheel-progressive-speed t)
 
 
 ;;better c-backspace https://stackoverflow.com/questions/28221079/ctrl-backspace-in-emacs-deletes-too-much Combined with kill region if region exists.
@@ -910,7 +1190,6 @@ you should place your code here."
 
 (global-set-key  [C-backspace]
                  'aborn/backward-kill-word)
-
 
 
 
@@ -1085,10 +1364,10 @@ Does not set point.  Does nothing if mark ring is empty."
 
 ;;  (define-key org-mode-map (kbd "\C-x |") 'org-table-transform-in-place)
 
-  (setq org-refile-targets (quote (("r:/Apps/Editorial/todowork.org" :maxlevel . 2)
-                                   ("r:/Apps/Editorial/todohome.org" :maxlevel . 2)
-                                   ("r:/Apps/Editorial/obi1kbwork.org" :maxlevel . 2)
-                                   ("r:/Apps/Editorial/obi1kbhome.org" :maxlevel . 2)
+  (setq org-refile-targets (quote (("r:/Apps/Editorial/todowork.org" :maxlevel . 4)
+                                   ("r:/Apps/Editorial/todohome.org" :maxlevel . 5)
+                                   ("r:/Apps/Editorial/obi1kbwork.org" :maxlevel . 4)
+                                   ("r:/Apps/Editorial/obi1kbhome.org" :maxlevel . 4)
                                    ("r:/Apps/Editorial/riverofreferencework.org" :maxlevel . 2)
                                    ("r:/Apps/Editorial/riverofreferencehome.org" :maxlevel . 2)
                                    ("r:/Apps/Editorial/somedaymaybework.org" :maxlevel . 2)
@@ -1209,8 +1488,8 @@ Does not set point.  Does nothing if mark ring is empty."
     (set-frame-parameter nil 'fullscreen 'maximized))
 
   ;; New frame height and widths
-  (add-to-list 'default-frame-alist '(height . 69))
-  (add-to-list 'default-frame-alist '(width . 240))
+  (add-to-list 'default-frame-alist '(height . 55))
+  (add-to-list 'default-frame-alist '(width . 210))
 
 
 
@@ -1304,9 +1583,9 @@ Version 2015-12-08"
 ;;(global-set-key (kbd "M-[") 'indent-tools-hydra/indent-tools-goto-previous-sibling) ; Alt+[
 ;;(global-set-key (kbd "M-]") 'indent-tools-hydra/indent-tools-goto-next-sibling) ; Alt+]
 
-(require 'indent-tools)
-(global-set-key (kbd "<f8>") 'indent-tools-goto-previous-sibling)
-(global-set-key (kbd "<f9>") 'indent-tools-goto-next-sibling)
+;; (require 'indent-tools)
+;; (global-set-key (kbd "<f8>") 'indent-tools-goto-previous-sibling)
+;; (global-set-key (kbd "<f9>") 'indent-tools-goto-next-sibling)
 
 ;; (global-set-key (kbd "C-M-]") 'indent-tools-hydra/body) ; ctrl-Alt+]
 
@@ -1349,13 +1628,6 @@ Version 2016-07-23"
 
 
 
-;;undo keys
-(global-undo-tree-mode -1)
-(global-unset-key (kbd "C-z"))
-(global-unset-key (kbd "C-y"))
-(define-key evil-emacs-state-map (kbd "C-z") 'undo-fu-only-undo)
-;; (global-set-key (kbd "C-z") 'undo-fu-only-undo)
-(global-set-key (kbd "C-y") 'undo-fu-only-redo)
 
 
 ;;undo session mode -- not working?
@@ -1426,41 +1698,41 @@ Version 2016-07-23"
                           (:name "--------------------- ! Due Today !-----------------------"
                                  :deadline today
                                  :order 2)
-                          (:name "------------------------Important------------------------"
+                          (:name "-----------! Priority A Important Doing it Today !--------"
                                  :tag "Important"
                                  :priority "A"
-                                 :order 4)
-                          (:name "-----------------------! Overdue !-----------------------"
-                                 :deadline past
                                  :order 1)
-                          (:name "------------------------Due Soon------------------------"
-                                 :deadline future
+                          (:name "-----------------------! Overdue !------------------------"
+                                 :deadline past
                                  :order 3)
+                          (:name "------------------------Due Soon--------------------------"
+                                 :deadline future
+                                 :order 4)
                           (:name "------------------------MONITORING------------------------"
                                  :todo "MONITORING"
                                  :order 10)
-                          (:name "------------------------Blocked - Follow up?------------------------"
+                          (:name "------------------------Blocked - Follow up?--------------"
                                  :todo "BLOCKED"
                                  :order 12)
-                          (:name "------------------------PROJECT"
+                          (:name "------------------------PROJECT---------------------------"
                                  :todo "Project"
                                  :order 14)
-                          (:name "------------------------Log this in UCM------------------------"
+                          (:name "------------------------Log this in UCM-------------------"
                                  :todo "DONE-UCM"
                                  :order 13)
-                          (:name "------------------------Research------------------------"
+                          (:name "------------------------Research-------------------------"
                                  :tag "Research"
                                  :order 15)
-                          (:name "------------------------To read------------------------"
+                          (:name "------------------------To read--------------------------"
                                  :tag "Read"
                                  :order 30)
-                          (:name "------------------------Waiting------------------------"
+                          (:name "------------------------Waiting--------------------------"
                                  :todo "WAITING"
                                  :order 20)
-                          (:name "------------------------trivial------------------------"
+                          (:name "------------------------trivial--------------------------"
                                  :tag ("truckroll"))
 
-                          (:name "------------------------trivial------------------------"
+                          (:name "------------------------trivial--------------------------"
                                  :priority<= "C"
                                  :tag ("Trivial" "Unimportant")
                                  :todo ("SOMEDAY" )
@@ -1498,15 +1770,15 @@ Version 2016-07-23"
 
 
 
-(defun my-handle-delete-frame (event)
-  "Ask for confirmation before deleting the last frame"
-  (interactive "e")
-  (let ((frame   (posn-window (event-start event)))
-        (numfrs  (length (visible-frame-list))))
-    (cond ((> numfrs 1) (delete-frame frame t))
-          ((y-or-n-p "Really exit Emacs? ") (save-buffers-kill-emacs)))))
+;; (defun my-handle-delete-frame (event)
+;;   "Ask for confirmation before deleting the last frame"
+;;   (interactive "e")
+;;   (let ((frame   (posn-window (event-start event)))
+;;         (numfrs  (length (visible-frame-list))))
+;;     (cond ((> numfrs 1) (delete-frame frame t))
+;;           ((y-or-n-p "Really exit Emacs? ") (save-buffers-kill-emacs)))))
 
-(define-key special-event-map [delete-frame] 'my-handle-delete-frame)
+;; (define-key special-event-map [delete-frame] 'my-handle-delete-frame)
 
 
 
@@ -1514,14 +1786,14 @@ Version 2016-07-23"
 
 (defhydra hydra-dired (:hint nil :color pink)
   "
-_+_ mkdir          _v_iew           _m_ark             _(_ details        _i_nsert-subdir    wdired
-_C_opy             _O_ view other   _U_nmark all       _)_ omit-mode      _$_ hide-subdir    C-x C-q : edit
-_D_elete           _o_pen other     _u_nmark           _l_ redisplay      _w_ kill-subdir    C-c C-c : commit
-_R_ename           _M_ chmod        _t_oggle           _g_ revert buf     _e_ ediff          C-c ESC : abort
-_Y_ rel symlink    _G_ chgrp        _E_xtension mark   _s_ort             _=_ pdiff
-_S_ymlink          ^ ^              _F_ind marked      _._ toggle hydra   \\ flyspell
-_r_sync            ^ ^              ^ ^                ^ ^                _?_ summary
-_z_ compress-file  _A_ find regexp
+_+_ mkdir          _v_iew           _m_ark             _(_ details        _i_nsert-subdir      wdired
+_C_opy             _O_ view other   _U_nmark all       _)_ omit-mode      C-uk no-instsubdir C-x C-q : edit
+_D_elete           _o_pen other     _u_nmark           _l_ redisplay      _$_ hide-subdir      C-c C-c : commit
+_R_ename/Move      _M_ chmod        _t_oggle           _g_ revert(refresh) _w_ kill-subdir      C-c ESC : abort
+_Y_ rel symlink    _G_ chgrp        _E_xtension mark   _s_ort             _e_ ediff
+_S_ymlink          ^ ^              _F_ind marked      _._ toggle hydra    _=_ pdiff
+_r_sync            ^ ^              ^ ^                ^ ^                \\ flyspell
+_z_ compress-file  _A_ find regexp                                        _?_ summary
 _Z_ compress       _Q_ repl regexp
 
 T - tag prefix
@@ -1650,12 +1922,10 @@ _vr_ reset      ^^                       ^^                 ^^
 
 
 
-
-
-
-
 ;;Proper case
 (evil-leader/set-key (kbd "x C-u") 'upcase-initials-region)
+
+
 
 ;highlights the cursor line. I usually go with the default.
 ;(set-face-background hl-line-face "darkgreen")
@@ -1678,25 +1948,166 @@ _vr_ reset      ^^                       ^^                 ^^
 (setq org-startup-indented t)
 
 
-(setq org-habit-show-all-today t)
+(setq org-habit-show-all-today nil)
 
 ;; C-? to show actions in helm-find-files
-(define-key helm-map (kbd "C-?")  'helm-select-action)
+;; (define-key helm-map (kbd "C-?")  'helm-select-action)            					;; issue with new spacemacs version 
 
-)
+;;(find-file "r:/Apps/Editorial/org-temp/Untitled-2021-0909-210651.org")                           ;;; not sure what this 
 
-;; Do not write anything past this comment. This is where Emacs will
-;; auto-generate custom variable definitions.
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async))))
+(defun open-org-files-recursively ()
+  "Search DIRNAME recursively for org files, and open them all."
+  (interactive)
+  (mapc #'find-file (directory-files-recursively "r:/Apps/Editorial/org-temp/" "\\.org$" nil))
+  )
 
-;; End:
+(open-org-files-recursively)
+
+
+(find-file "r:/Apps/Editorial/inbox.org")
+
+
+;; Open all my org files -- looks like issues with this. things after this do not work. tshoot later. It's in my private.el maybe I bring it out and it's fine now?
+;; https://github.com/sinewalker/dotspacemacs thanks
+;; (defun open-org-files ()
+;;   "Opens all my ORG Agenda files"
+;;   (interactive)
+;;   (mapc #'find-file (org-agenda-files))
+;;   (switch-to-buffer (file-name-nondirectory (car (org-agenda-files)))))
+;; (open-org-files)
+
+;;(desktop-save-mode)
+;;(desktop-read)
+
+;; Helm always at the bottom. 
+;; https://www.reddit.com/r/emacs/comments/345vtl/make_helm_window_at_the_bottom_without_using_any/
+(add-to-list 'display-buffer-alist
+             `(,(rx bos "*helm" (* not-newline) "*" eos)
+               (display-buffer-in-side-window)
+               (inhibit-same-window . t)
+               (window-height . 0.4)))
+
+
+
+(setq scroll-conservatively 1000)
+
+
+;;https://stackoverflow.com/questions/24705984/increase-decrease-font-size-in-an-emacs-frame-not-just-buffer#:~:text=Using%20C%2Dx%20C%2D%2B%20and,font%20size%20in%20one%20buffer.
+(defun zoom-frame (&optional n frame amt)
+  "Increase the default size of text by AMT inside FRAME N times.
+  N can be given as a prefix arg.
+  AMT will default to 10.
+  FRAME will default the selected frame."
+  (interactive "p")
+  (let ((frame (or frame (selected-frame)))
+        (height (+ (face-attribute 'default :height frame) (* n (or amt 10)))))
+    (set-face-attribute 'default frame :height height)
+    (when (called-interactively-p)
+      (message "Set frame's default text height to %d." height))))
+
+(defun zoom-frame-out (&optional n frame amt)
+  "Call `zoom-frame' with -N."
+  (interactive "p")
+  (zoom-frame (- n) frame amt))
+
+(defhydra hydra-zoom-frame (:color amaranth)
+  "Zoom Frame Operationss"
+  ("=" zoom-frame "Zoom in")
+  ("-" zoom-frame-out "Zoom out")
+  ("q" nil "Exit" :exit t))
+
+(evil-leader/set-key (kbd "z f") (lambda () (interactive) (hydra-zoom-frame/body)))
+
+
+
+
+
+  )
+
+
+;; ;; Do not write anything past this comment. This is where Emacs will
+;; ;; auto-generate custom variable definitions.
+;; (custom-set-variables
+;;  ;; custom-set-variables was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  '(evil-want-Y-yank-to-eol nil)
+;;  '(org-agenda-files
+;;    '("r:/Apps/Editorial/todowork.org" "r:/Apps/Editorial/inbox.org" "r:/Apps/Editorial/Meetings.org" "r:/Apps/Editorial/somedaymaybehome.org" "r:/Apps/Editorial/somedaymaybework.org" "r:/Apps/Editorial/todohome.org"))
+;;  '(org-refile-use-cache nil)
+;;  '(org-speed-commands
+;;    '(("Outline Navigation")
+;;      ("n" org-speed-move-safe 'org-next-visible-heading)
+;;      ("p" org-speed-move-safe 'org-previous-visible-heading)
+;;      ("f" org-speed-move-safe 'org-forward-heading-same-level)
+;;      ("b" org-speed-move-safe 'org-backward-heading-same-level)
+;;      ("F" . org-next-block)
+;;      ("B" . org-previous-block)
+;;      ("u" org-speed-move-safe 'outline-up-heading)
+;;      ("j" . org-goto)
+;;      ("g" org-refile
+;;       '(4))
+;;      ("Outline Visibility")
+;;      ("h" . org-cycle)
+;;      ("H" . org-shifttab)
+;;      (" " . org-display-outline-path)
+;;      ("s" . org-toggle-narrow-to-subtree)
+;;      ("'" . org-cut-subtree)
+;;      ("=" . org-columns)
+;;      ("Outline Structure Editing")
+;;      ("i" . org-metaup)
+;;      ("k" . org-metadown)
+;;      ("r" . org-metaright)
+;;      ("l" . org-metaleft)
+;;      ("R" . org-shiftmetaright)
+;;      ("L" . org-shiftmetaleft)
+;;      ("i" progn
+;;       (forward-char 1)
+;;       (call-interactively 'org-insert-heading-respect-content))
+;;      ("^" . org-sort)
+;;      ("w" . org-refile)
+;;      ("a" . org-archive-subtree-default-with-confirmation)
+;;      ("@" . org-mark-subtree)
+;;      ("#" . org-toggle-comment)
+;;      ("Clock Commands")
+;;      ("I" . org-clock-in)
+;;      ("O" . org-clock-out)
+;;      ("Meta Data Editing")
+;;      ("t" . org-todo)
+;;      ("," org-priority)
+;;      ("0" org-priority 32)
+;;      ("1" org-priority 65)
+;;      ("2" org-priority 66)
+;;      ("3" org-priority 67)
+;;      (":" . org-set-tags-command)
+;;      ("e" . org-set-effort)
+;;      ("E" . org-inc-effort)
+;;      ("W" lambda
+;;       (m)
+;;       (interactive "sMinutes before warning: ")
+;;       (org-entry-put
+;;        (point)
+;;        "APPT_WARNTIME" m))
+;;      ("Agenda Views etc")
+;;      ("v" . org-agenda)
+;;      ("/" . org-sparse-tree)
+;;      ("Misc")
+;;      ("o" . org-open-at-point)
+;;      ("?" . org-speed-command-help)
+;;      ("<" org-agenda-set-restriction-lock 'subtree)
+;;      (">" org-agenda-remove-restriction-lock)
+;;      ("d" . widen)))
+;;  '(org-use-speed-commands t)
+;;  '(package-selected-packages
+;;    '(tern deft default-text-scale zonokai-emacs zenburn-theme zen-and-art-theme yapfify xterm-color xkcd writeroom-mode white-sand-theme which-key web-mode web-beautify w32-browser vscdark-theme vdiff use-package undo-fu-session undo-fu underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tree-mode toxi-theme toc-org terminal-here tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit swiper-helm sunny-day-theme sublime-themes subatomic256-theme subatomic-theme sphinx-doc spacegray-theme sourcerer-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smeargle slim-mode shell-pop seti-theme scss-mode sass-mode reverse-theme restclient-test restclient-helm restart-emacs rebecca-theme ranger railscasts-theme quickrun pytest pyenv-mode pydoc py-isort purple-haze-theme pug-mode professional-theme prettier-js powershell poetry planet-theme pippel pipenv pip-requirements phoenix-dark-pink-theme phoenix-dark-mono-theme persistent-scratch peep-dired pdf-view-restore pcre2el overseer ov orgit organic-green-theme org-superstar org-super-agenda org-rich-yank org-present org-pomodoro org-mime org-download org-contrib org-cliplink open-junk-file omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme npm-mode nov nose nodejs-repl noctilux-theme naquadah-theme nameless mustang-theme multi-term monokai-theme monochrome-theme molokai-theme moe-theme modus-vivendi-theme modus-operandi-theme minimal-theme material-theme markdown-mode manage-minor-mode majapahit-theme madhat2r-theme macrostep lush-theme livid-mode live-py-mode light-soap-theme kaolin-themes json-reformat json-navigator json-mode js2-refactor js-doc jbeans-theme jazz-theme ir-black-theme intellij-theme inspector inkpot-theme importmagic impatient-mode hybrid-mode highlight-indent-guides hide-lines heroku-theme hemisu-theme helm-xref helm-themes helm-swoop helm-pydoc helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-ls-git helm-git-grep helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme google-this gnuplot gitignore-templates git-timemachine git-modes git-messenger git-link gandalf-theme fuzzy flycheck-package flycheck-elsa flatui-theme flatland-theme farmhouse-theme eziam-theme exotica-theme evil-org espresso-theme eshell-z eshell-prompt-extras esh-help es-mode erc-yt erc-view-log erc-social-graph erc-image erc-hl-nicks engine-mode emr emmet-mode elisp-slime-nav elfeed dracula-theme dotenv-mode doom-themes django-theme diminish darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cython-mode cyberpunk-theme csv-mode company-web company-anaconda color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme chocolate-theme cherry-blossom-theme busybee-theme bubbleberry-theme bm blacken birds-of-paradise-plus-theme bind-map beacon bash-completion badwolf-theme auto-yasnippet auto-compile apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes ahk-mode afternoon-theme ace-jump-helm-line ac-ispell 2048-game)))
+;; (custom-set-faces
+;;  ;; custom-set-faces was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  )
+
 (defun dotspacemacs/emacs-custom-settings ()
   "Emacs custom settings.
 This is an auto-generated function, do not modify its content directly, use
@@ -1707,99 +2118,86 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ansi-color-faces-vector
-   [default bold shadow italic underline bold bold-italic bold])
- '(ansi-color-names-vector
-   ["#222222" "#aa4450" "#87875f" "#cc8800" "#87AFD7" "#8787AF" "#87ceeb" "#c2c2b0"])
- '(beacon-color "#d33682")
- '(compilation-message-face (quote default))
- '(cua-global-mark-cursor-color "#3cafa5")
- '(cua-mode t nil (cua-base))
- '(cua-overwrite-cursor-color "#c49619")
- '(cua-read-only-cursor-color "#93a61a")
  '(evil-want-Y-yank-to-eol nil)
- '(fci-rule-color "#62686E")
- '(flycheck-color-mode-line-face-to-color (quote mode-line-buffer-id))
- '(frame-background-mode (quote light))
- '(highlight-changes-colors (quote ("#e2468f" "#7a7ed2")))
- '(highlight-symbol-colors
-   (quote
-    ("#3c6e408d329c" "#0c4a45f54ce3" "#486d33913531" "#1fab3bea568c" "#2ec943ac3324" "#449935a6314d" "#0b03411b5985")))
- '(highlight-symbol-foreground-color "#9eacac")
- '(highlight-tail-colors
-   (quote
-    (("#01323d" . 0)
-     ("#687f00" . 20)
-     ("#008981" . 30)
-     ("#0069b0" . 50)
-     ("#936d00" . 60)
-     ("#a72e01" . 70)
-     ("#a81761" . 85)
-     ("#01323d" . 100))))
- '(hl-bg-colors
-   (quote
-    ("#936d00" "#a72e01" "#ae1212" "#a81761" "#3548a2" "#0069b0" "#008981" "#687f00")))
- '(hl-fg-colors
-   (quote
-    ("#002732" "#002732" "#002732" "#002732" "#002732" "#002732" "#002732" "#002732")))
- '(jdee-db-active-breakpoint-face-colors (cons "#1d2127" "#87ceeb"))
- '(jdee-db-requested-breakpoint-face-colors (cons "#1d2127" "#87875f"))
- '(jdee-db-spec-breakpoint-face-colors (cons "#1d2127" "#686858"))
- '(lsp-ui-doc-border "#9eacac")
- '(nrepl-message-colors
-   (quote
-    ("#ec423a" "#db5823" "#c49619" "#687f00" "#c3d255" "#0069b0" "#3cafa5" "#e2468f" "#7a7ed2")))
- '(objed-cursor-color "#aa4450")
  '(org-agenda-files
-   (quote
-    ("r:/Apps/Editorial/somedaymaybehome.org" "r:/Apps/Editorial/inbox.org" "r:/Apps/Editorial/todohome.org" "r:/Apps/Editorial/todowork.org")))
- '(org-special-ctrl-a/e t)
+   '("r:/Apps/Editorial/subnetting-flash-cards.org" "r:/Apps/Editorial/unchecked-musings.org" "r:/Apps/Editorial/todowork.org" "r:/Apps/Editorial/inbox.org" "r:/Apps/Editorial/Meetings.org" "r:/Apps/Editorial/somedaymaybehome.org" "r:/Apps/Editorial/somedaymaybework.org" "r:/Apps/Editorial/todohome.org"))
+ '(org-drill-cram-hours 1)
+ '(org-drill-leech-method 'warn)
+ '(org-fontify-done-headline nil)
+ '(org-fontify-todo-headline nil)
+ '(org-refile-use-cache nil)
+ '(org-speed-commands
+   '(("Outline Navigation")
+     ("n" org-speed-move-safe 'org-next-visible-heading)
+     ("p" org-speed-move-safe 'org-previous-visible-heading)
+     ("f" org-speed-move-safe 'org-forward-heading-same-level)
+     ("b" org-speed-move-safe 'org-backward-heading-same-level)
+     ("F" . org-next-block)
+     ("B" . org-previous-block)
+     ("u" org-speed-move-safe 'outline-up-heading)
+     ("j" . org-goto)
+     ("g" org-refile
+      '(4))
+     ("Outline Visibility")
+     ("h" . org-cycle)
+     ("H" . org-shifttab)
+     (" " . org-display-outline-path)
+     ("s" . org-toggle-narrow-to-subtree)
+     ("'" . org-cut-subtree)
+     ("=" . org-columns)
+     ("Outline Structure Editing")
+     ("i" . org-metaup)
+     ("k" . org-metadown)
+     ("r" . org-metaright)
+     ("l" . org-metaleft)
+     ("R" . org-shiftmetaright)
+     ("L" . org-shiftmetaleft)
+     ("i" progn
+      (forward-char 1)
+      (call-interactively 'org-insert-heading-respect-content))
+     ("^" . org-sort)
+     ("w" . org-refile)
+     ("a" . org-archive-subtree-default-with-confirmation)
+     ("@" . org-mark-subtree)
+     ("#" . org-toggle-comment)
+     ("Clock Commands")
+     ("I" . org-clock-in)
+     ("O" . org-clock-out)
+     ("Meta Data Editing")
+     ("t" . org-todo)
+     ("," org-priority)
+     ("0" org-priority 32)
+     ("1" org-priority 65)
+     ("2" org-priority 66)
+     ("3" org-priority 67)
+     (":" . org-set-tags-command)
+     ("e" . org-set-effort)
+     ("E" . org-inc-effort)
+     ("W" lambda
+      (m)
+      (interactive "sMinutes before warning: ")
+      (org-entry-put
+       (point)
+       "APPT_WARNTIME" m))
+     ("Agenda Views etc")
+     ("v" . org-paste-subtree)
+     ("/" . org-sparse-tree)
+     ("Misc")
+     ("o" . org-open-at-point)
+     ("?" . org-speed-command-help)
+     ("<" org-agenda-set-restriction-lock 'subtree)
+     (">" org-agenda-remove-restriction-lock)
+     ("d" . widen)))
+ '(org-src-block-faces 'nil)
+ '(org-use-speed-commands t)
  '(package-selected-packages
-   (quote
-    (zenburn-theme yapfify xterm-color xkcd web-mode web-beautify w32-browser tagedit swiper-helm swiper ivy ssh-agency ssh sourcerer-theme solarized-theme slim-mode shell-pop scss-mode sass-mode restclient-test restclient-helm restclient ranger pyvenv pytest pyenv-mode pyu-isort pug-mode powershell pip-requirements org-projectile org-category-capture org-present org-pomodoro alert log4e gntp org-download org-brain multi-term monokai-theme livid-mode skewer-mode live-py-mode less-css-mode json-mode json-snatcher json-reformat js2-refactor multiple-cursors js2-mode js-doc irfc impatient-mode simple-httpd hy-mode htmlize hide-lines helm-pydoc helm-css-scss helm-company helm-c-yasnippet hc-zenburn-theme haml-mode gnuplot fuzzy flyspell-correct-helm flyspell-correct flycheck-pos-tip pos-tip flycheck evil-org eshell-z eshell-prompt-extras esh-help emmet-mode dired+ cython-mode csv-mode company-web web-completion-data dash-functional tern company-statistics company-anaconda company coffee-mode bash-completion auto-yasnippet yasnippet auto-dictionary anaconda-mode pythonic ahk-mode ac-ispell auto-complete 2048-game ws-butler winum which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org symon string-inflection spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el password-generator paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint info+ indent-guide hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-purpose window-purpose imenu-list helm-projectile helm-mode-manager helm-make projectile pkg-info epl helm-flx helm-descbinds helm-ag google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-lion evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav editorconfig dumb-jump f dash s diminish define-word column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile packed aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line helm avy helm-core popup async)))
- '(pdf-view-midnight-colors (cons "#c2c2b0" "#222222"))
- '(pos-tip-background-color "#01323d")
- '(pos-tip-foreground-color "#9eacac")
- '(rustic-ansi-faces
-   ["#222222" "#aa4450" "#87875f" "#cc8800" "#87AFD7" "#8787AF" "#87ceeb" "#c2c2b0"])
- '(smartrep-mode-line-active-bg (solarized-color-blend "#93a61a" "#01323d" 0.2))
- '(term-default-bg-color "#002732")
- '(term-default-fg-color "#8d9fa1")
- '(vc-annotate-background "#222222")
- '(vc-annotate-background-mode nil)
- '(vc-annotate-color-map
-   (list
-    (cons 20 "#87875f")
-    (cons 40 "#9e873f")
-    (cons 60 "#b5871f")
-    (cons 80 "#cc8800")
-    (cons 100 "#dd8d00")
-    (cons 120 "#ee9200")
-    (cons 140 "#ff9800")
-    (cons 160 "#d7923a")
-    (cons 180 "#af8c74")
-    (cons 200 "#8787AF")
-    (cons 220 "#92708f")
-    (cons 240 "#9e5a6f")
-    (cons 260 "#aa4450")
-    (cons 280 "#994d51")
-    (cons 300 "#895654")
-    (cons 320 "#785f55")
-    (cons 340 "#62686E")
-    (cons 360 "#62686E")))
- '(vc-annotate-very-old-color nil)
- '(weechat-color-list
-   (quote
-    (unspecified "#002732" "#01323d" "#ae1212" "#ec423a" "#687f00" "#93a61a" "#936d00" "#c49619" "#0069b0" "#3c98e0" "#a81761" "#e2468f" "#008981" "#3cafa5" "#8d9fa1" "#60767e")))
- '(xterm-color-names
-   ["#01323d" "#ec423a" "#93a61a" "#c49619" "#3c98e0" "#e2468f" "#3cafa5" "#faf3e0"])
- '(xterm-color-names-bright
-   ["#002732" "#db5823" "#62787f" "#60767e" "#8d9fa1" "#7a7ed2" "#9eacac" "#ffffee"]))
+   '(org-drill org-treeusage tern deft default-text-scale zonokai-emacs zenburn-theme zen-and-art-theme yapfify xterm-color xkcd writeroom-mode white-sand-theme which-key web-mode web-beautify w32-browser vscdark-theme vdiff use-package undo-fu-session undo-fu underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tree-mode toxi-theme toc-org terminal-here tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit swiper-helm sunny-day-theme sublime-themes subatomic256-theme subatomic-theme sphinx-doc spacegray-theme sourcerer-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smeargle slim-mode shell-pop seti-theme scss-mode sass-mode reverse-theme restclient-test restclient-helm restart-emacs rebecca-theme ranger railscasts-theme quickrun pytest pyenv-mode pydoc py-isort purple-haze-theme pug-mode professional-theme prettier-js powershell poetry planet-theme pippel pipenv pip-requirements phoenix-dark-pink-theme phoenix-dark-mono-theme persistent-scratch peep-dired pdf-view-restore pcre2el overseer ov orgit organic-green-theme org-superstar org-super-agenda org-rich-yank org-present org-pomodoro org-mime org-download org-contrib org-cliplink open-junk-file omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme npm-mode nov nose nodejs-repl noctilux-theme naquadah-theme nameless mustang-theme multi-term monokai-theme monochrome-theme molokai-theme moe-theme modus-vivendi-theme modus-operandi-theme minimal-theme material-theme markdown-mode manage-minor-mode majapahit-theme madhat2r-theme macrostep lush-theme livid-mode live-py-mode light-soap-theme kaolin-themes json-reformat json-navigator json-mode js2-refactor js-doc jbeans-theme jazz-theme ir-black-theme intellij-theme inspector inkpot-theme importmagic impatient-mode hybrid-mode highlight-indent-guides hide-lines heroku-theme hemisu-theme helm-xref helm-themes helm-swoop helm-pydoc helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-ls-git helm-git-grep helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme google-this gnuplot gitignore-templates git-timemachine git-modes git-messenger git-link gandalf-theme fuzzy flycheck-package flycheck-elsa flatui-theme flatland-theme farmhouse-theme eziam-theme exotica-theme evil-org espresso-theme eshell-z eshell-prompt-extras esh-help es-mode erc-yt erc-view-log erc-social-graph erc-image erc-hl-nicks engine-mode emr emmet-mode elisp-slime-nav elfeed dracula-theme dotenv-mode doom-themes django-theme diminish darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cython-mode cyberpunk-theme csv-mode company-web company-anaconda color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme chocolate-theme cherry-blossom-theme busybee-theme bubbleberry-theme bm blacken birds-of-paradise-plus-theme bind-map beacon bash-completion badwolf-theme auto-yasnippet auto-compile apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes ahk-mode afternoon-theme ace-jump-helm-line ac-ispell 2048-game)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(org-agenda-date ((t (:foreground "#a991f1" :weight ultra-bold :height 2.0))))
+ '(org-agenda-date-today ((t (:foreground "#cbc6ed" :underline t :slant italic :weight ultra-bold :height 2.3))))
+ '(org-agenda-date-weekend ((t (:foreground "#656087" :weight ultra-bold :height 2.0)))))
 )
-
