@@ -32,7 +32,7 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
+   '(yaml
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
@@ -99,13 +99,12 @@ This function should only modify configuration layer settings."
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '(
-                                      tree-mode
+				      tree-mode
                                       markdown-mode
                                       2048-game
                                       elfeed
                                       swiper-helm
                                       csv-mode
-                                      org-journal
                                       hide-lines
                                       restart-emacs
                                       bash-completion
@@ -391,7 +390,7 @@ It should only modify the values of Spacemacs settings."
    ;; Size (in MB) above which spacemacs will prompt to open the large file
    ;; literally to avoid performance issues. Opening a file literally means that
    ;; no major mode or minor modes are active. (default is 1)
-   dotspacemacs-large-file-size 2
+   dotspacemacs-large-file-size 3
 
    ;; Location where to auto-save files. Possible values are `original' to
    ;; auto-save the file in-place, `cache' to auto-save the file to another
@@ -679,7 +678,7 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
 
   (setq org-M-RET-may-split-line nil)
   (setq org-use-tag-inheritance nil)
-(setq org-journal-dir "r:/Apps/Editorial/logbook/")
+
 
 ;; this isn't working
 (setq org-default-notes-file "r:/Apps/Editorial/inbox.org")
@@ -790,30 +789,25 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
       (load-file personal-settings))
     )
 
-
-;(load-file "~/.emacs.d/private/local/cisco-router-mode.el")
-
-
-
  (add-to-list 'auto-mode-alist '("\\.iosconfig.txt\\'" . cisco-router-mode))
  (add-to-list 'auto-mode-alist '("\\cfg\\'" . cisco-router-mode))
  (add-to-list 'auto-mode-alist '("\\confg\\'" . cisco-router-mode))
 
-
-
-
 ;;  Csv stuff
-;(when (file-exists-p "~/.emacs.d/private/local/csv-nav.el")
-;  (load-file "~/.emacs.d/private/local/csv-nav.el")
-;  )
-
  (let ((personal-settings "~/.emacs.d/private/local/csv-nav.el"))
   (when (file-exists-p personal-settings)
     (load-file personal-settings))
   )
 
+ ;;org-team
+ (let ((personal-settings "~/.emacs.d/private/local/org-team.el"))
+   (when (file-exists-p personal-settings)
+     (load-file personal-settings))
+   )
 
+ (setq org-team-dir "r:/Apps/Editorial/teams.org")
 
+ 
 
 ;;calc bps  I don't think this works
 (setq math-additional-units
@@ -859,7 +853,14 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
    (global-set-key [M-up] 'move-text-up)
    (global-set-key [M-down] 'move-text-down)
 
-  )
+
+   
+
+
+
+
+   
+)
 
 
 (defun dotspacemacs/user-load ()
@@ -1745,8 +1746,19 @@ Version 2016-07-23"
 
 (setq org-capture-templates
       '(
-				("c" "High priority Todo" entry (file "r:/Apps/Editorial/inbox.org")
-         "* TODO [#A] !!! %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n")
+	("0" "High priority Todo" entry (file "r:/Apps/Editorial/inbox.org")
+        "* TODO [#A] !!! %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+0d\"))\n")
+
+        ("1" "Remind me tomorrow" entry (file "r:/Apps/Editorial/inbox.org")
+         "* TODO %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+1d\")) DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+1d\"))\n")
+        ("2" "Remind in 2 days" entry (file "r:/Apps/Editorial/inbox.org")
+         "* TODO %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+2d\")) DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+2d\"))\n")
+        ("3" "Remind in 3 days" entry (file "r:/Apps/Editorial/inbox.org")
+         "* TODO %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+3d\")) DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+3d\"))\n")
+        ("4" "Remind Next Week" entry (file "r:/Apps/Editorial/inbox.org")
+         "* TODO %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+7d\")) DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+7d\"))\n")
+        ("5" "Remind Next Month" entry (file "r:/Apps/Editorial/inbox.org")
+         "* TODO %?\nSCHEDULED: %(org-insert-time-stamp (org-read-date nil t \"+30d\")) DEADLINE: %(org-insert-time-stamp (org-read-date nil t \"+30d\"))\n")
         ("t" "Todo" entry (file "r:/Apps/Editorial/inbox.org")
          "* TODO %?\n%U" :empty-lines 1)
         ("T" "Todo with Clipboard" entry (file "r:/Apps/Editorial/inbox.org")
@@ -1759,8 +1771,24 @@ Version 2016-07-23"
          "* URL - %?\n%U" :empty-lines 1)
         ("U" "URL with Clipboard" entry (file "r:/Apps/Editorial/inbox.org")
          "* URL -  %?\n%U\n   %c" :empty-lines 1)
-        )
+        ("l" "TechNotes" entry (file "r:/Apps/Editorial/inbox.org")
+         "* TechNotes %K %T %^{prompt|Log|Mgmt Update|Valid Datapoint|Problem ID|Questions|Theory|Plan of Action|Actions|Outcomes|Conclusion} %(org-set-tags \"technotes\")\n%^C\n %? " :empty-lines 1)
+        ;; To practice for my driving test
+        ("d"               ; key
+         "Drill driving"   ; name
+         entry             ; type
+         (file+headline "r:/Apps/Editorial/flash-cards-study-is-fun.org" "Inbox")  ; target
+         "* Question  :drill:\n%^{Question}\n** Answer\n%?"  ; template
+         :prepend t        ; properties
+         :empty-lines 1    ; properties
+         :created t        ; properties
+         :kill-buffer t)   ; properties
+
+      ("I" "Team log" item (function org-team-visit-person-log)
+       "- %U %?" :prepend t)
       )
+)
+
 
 
 
@@ -1787,15 +1815,14 @@ Version 2016-07-23"
 (defhydra hydra-dired (:hint nil :color pink)
   "
 _+_ mkdir          _v_iew           _m_ark             _(_ details        _i_nsert-subdir      wdired
-_C_opy             _O_ view other   _U_nmark all       _)_ omit-mode      C-uk no-instsubdir C-x C-q : edit
+_C_opy             _O_view other   _U_nmark all       _)_ omit-mode      C-uk no-instsubdir C-x C-q : edit
 _D_elete           _o_pen other     _u_nmark           _l_ redisplay      _$_ hide-subdir      C-c C-c : commit
-_R_ename/Move      _M_ chmod        _t_oggle           _g_ revert(refresh) _w_ kill-subdir      C-c ESC : abort
+_R_ename/Move      _M_ chmod        _t_oggle           _g_ revert(refresh)_w_ kill-subdir      C-c ESC : abort
 _Y_ rel symlink    _G_ chgrp        _E_xtension mark   _s_ort             _e_ ediff
-_S_ymlink          ^ ^              _F_ind marked      _._ toggle hydra    _=_ pdiff
+_S_ymlink          ^ ^              _F_ind marked      _._ toggle hydra   _=_ pdiff
 _r_sync            ^ ^              ^ ^                ^ ^                \\ flyspell
-_z_ compress-file  _A_ find regexp                                        _?_ summary
-_Z_ compress       _Q_ repl regexp
-
+_z_ compress-file  _A_ find regexp                                    _?_ summary
+_Z_ compress       _Q_ repl regexp                                    C-o Execute win32
 T - tag prefix
 "
   ("\\" dired-do-ispell)
@@ -1805,6 +1832,7 @@ T - tag prefix
   ("=" diredp-ediff)         ;; smart diff
   ("?" dired-summary)
   ("$" diredp-hide-subdir-nomove)
+;;  ("!" nil)
   ("A" dired-do-find-regexp)
   ("C" dired-do-copy)        ;; Copy all marked files
   ("D" dired-do-delete)
@@ -1837,6 +1865,16 @@ T - tag prefix
 
 (define-key dired-mode-map "." 'hydra-dired/body)
 
+; open/execute files in windows -  commented out for potential issue 20220509
+;; (defun w32-browser (doc) (w32-shell-execute 1 doc))
+;; (eval-after-load "dired" '(define-key dired-mode-map (kbd "C-o") (lambda () (interactive) (w32-browser (dired-replace-in-string "/" "\\" (dired-get-filename))))))
+
+
+
+
+
+
+
 
 ;; Hydra for org agenda (graciously taken from Spacemacs)
 (defhydra hydra-org-agenda (:pre (setq which-key-inhibit t)
@@ -1847,20 +1885,20 @@ Org agenda (_q_uit)
 
 ^Clock^      ^Visit entry^              ^Date^             ^Other^
 ^-----^----  ^-----------^------------  ^----^-----------  ^-----^---------
-_ci_ in      _SPC_ in other window      _ds_ schedule      _gr_ reload
+_ci_ in      _SPC_ in other window      _ds_ schedule      
 _co_ out     _TAB_ & go to location     _dd_ set deadline  _._  go to today
-_cq_ cancel  _RET_ & del other windows  _dt_ timestamp     _gd_ go to date
+_cq_ cancel  _RET_ & del other windows  _dt_ timestamp     _g_ refresh
 _cj_ jump    _o_   link                 _+_  do later      ^^
 ^^           ^^                         _-_  do earlier    ^^
 ^^           ^^                         ^^                 ^^
 ^View^          ^Filter^                 ^Headline^         ^Toggle mode^
 ^----^--------  ^------^---------------  ^--------^-------  ^-----------^----
-_vd_ day        _ft_ by tag              _ht_ set status    _tf_ follow
-_vw_ week       _fr_ refine by tag       _hk_ kill          _tl_ log
-_vt_ fortnight  _fc_ by category         _hr_ refile        _ta_ archive trees
-_vm_ month      _fh_ by top headline     _hA_ archive       _tA_ archive files
-_vy_ year       _fx_ by regexp           _h:_ set tags      _tr_ clock report
-_vn_ next span  _fd_ delete all filters  _hp_ set priority  _td_ diaries
+_vd_ day        _ft_ by tag              ht set status    tf follow
+_vw_ week       _fr_ refine by tag       _hk_ kill          _l_ log
+_vt_ fortnight  _fc_ by category         hr refile        ta archive trees
+_vm_ month      _fh_ by top headline     _hA_ archive       tA archive files
+_vy_ year       _fx_ by regexp           _h:_ set tags      tr clock report
+_vn_ next span  _fd_ delete all filters  _hp_ set priority  td diaries
 _vp_ prev span  ^^                       ^^                 ^^
 _vr_ reset      ^^                       ^^                 ^^
 ^^              ^^                       ^^                 ^^
@@ -1869,13 +1907,13 @@ _vr_ reset      ^^                       ^^                 ^^
   ("hA" org-agenda-archive-default)
   ("hk" org-agenda-kill)
   ("hp" org-agenda-priority)
-  ("hr" org-agenda-refile)
+  ("w" org-agenda-refile)
   ("h:" org-agenda-set-tags)
-  ("ht" org-agenda-todo)
+  ("t" org-agenda-todo)
   ;; Visit entry
   ("o"   link-hint-open-link :exit t)
-  ("<tab>" org-agenda-goto :exit t)
-  ("TAB" org-agenda-goto :exit t)
+  ("<tab>" amh-org-agenda-goto :exit t)
+  ("TAB" amh-org-agenda-goto :exit t)
   ("SPC" org-agenda-show-and-scroll-up)
   ("RET" org-agenda-switch-to :exit t)
   ;; Date
@@ -1894,12 +1932,12 @@ _vr_ reset      ^^                       ^^                 ^^
   ("vp" org-agenda-earlier)
   ("vr" org-agenda-reset-view)
   ;; Toggle mode
-  ("ta" org-agenda-archives-mode)
-  ("tA" (org-agenda-archives-mode 'files))
-  ("tr" org-agenda-clockreport-mode)
-  ("tf" org-agenda-follow-mode)
-  ("tl" org-agenda-log-mode)
-  ("td" org-agenda-toggle-diary)
+;;  ("ta" org-agenda-archives-mode)
+ ;; ("tA" (org-agenda-archives-mode 'files))
+  ;; ("tr" org-agenda-clockreport-mode)
+  ;; ("tf" org-agenda-follow-mode)
+  ("l" org-agenda-log-mode)
+  ;; ("td" org-agenda-toggle-diary)
   ;; Filter
   ("fc" org-agenda-filter-by-category)
   ("fx" org-agenda-filter-by-regexp)
@@ -1914,12 +1952,34 @@ _vr_ reset      ^^                       ^^                 ^^
   ("co" org-agenda-clock-out)
   ;; Other
   ("q" nil :exit t)
-  ("gd" org-agenda-goto-date)
+  ("g" org-agenda-redo-all)
+;  ("gd" org-agenda-goto-date)
   ("." org-agenda-goto-today)
-  ("gr" org-agenda-redo))
+;  ("gr" org-agenda-redo)
+  ("n" org-agenda-next-line)
+  ("p" org-agenda-previous-line)
+  )
 
 (define-key org-agenda-mode-map "." 'hydra-org-agenda/body)
 
+;; define priority
+(define-key org-agenda-mode-map "," 'org-agenda-priority)
+;; just because habit
+(define-key org-agenda-mode-map "0" 'org-agenda-priority)
+(define-key org-agenda-mode-map "1" 'org-agenda-priority)
+(define-key org-agenda-mode-map "2" 'org-agenda-priority)
+(define-key org-agenda-mode-map "3" 'org-agenda-priority)
+(define-key org-agenda-mode-map "w" 'org-agenda-refile)
+
+;; this kebyind makes it easy
+(define-key org-agenda-mode-map "h" 'amh-org-agenda-goto)
+
+;; make the org-agenda-goto miness
+(define-key org-agenda-mode-map [tab] 'amh-org-agenda-goto)
+
+
+;; in testing this allowed the M-m menu inside agenda. this might be screwing things up 20220509
+;; (define-key org-agenda-mode-map (kbd "M-m"))
 
 
 ;;Proper case
@@ -2021,8 +2081,76 @@ _vr_ reset      ^^                       ^^                 ^^
 
 
 
+;; When you have the calendar open you can press enter to paste the date in previous buffer.
+(defun calendar-insert-date ()
+  "Capture the date at point, exit the Calendar, insert the date."
+  (interactive)
+  (seq-let (month day year) (save-match-data (calendar-cursor-to-date))
+    (calendar-exit)
+    (insert (format "%d-%02d-%02d" year month day))))
 
+(define-key calendar-mode-map (kbd "RET") 'calendar-insert-date)
+
+
+
+;;org-drill
+(evil-leader/set-key (kbd "a o d d") 'org-drill)
+(evil-leader/set-key (kbd "a o d c") 'org-drill-cram-tree)
+(evil-leader/set-key (kbd "a o d a") 'org-drill-again)
+
+
+
+
+
+
+
+;; helm always at  bottom - works for everything but helm- swwop -- helm  swoop customize variable works now. 
+(defvar spacemacs-helm-display-help-buffer-regexp '("\\*.*Helm.*Help.*\\*"))
+(defvar spacemacs-helm-display-buffer-regexp `("\\*.*Helm.*\\*"
+                                               (display-buffer-in-side-window)
+                                               (inhibit-same-window . nil)
+                                               (side . bottom)
+                                               (window-width . 0.6)
+                                               (window-height . 0.4)))
+
+(defun display-helm-at-bottom (buffer &optional _resume)
+  (let ((display-buffer-alist (list spacemacs-helm-display-help-buffer-regexp
+                                    spacemacs-helm-display-buffer-regexp)))
+    (display-buffer buffer)))
+(setq helm-display-function 'display-helm-at-bottom)
+
+
+
+;; my org-agenda-goto - does the goto then goes to the begenning of line for speed keys
+
+(defun amh-org-agenda-goto ()
+  "testing this"
+  (interactive)
+  (org-agenda-goto)
+  (move-beginning-of-line())
   )
+
+
+;; Macro that takes the curent headline and parent headline and makes a link below.
+(fset 'make-headline-and-parent-link
+      (kmacro-lambda-form [?\C-c ?l ?\C-c ?\C-u ?\C-o ?* ?  ?\C-c ?\C-l return return home down ?\C-c ?l up right right ?  ?  left ?- left left ?\C-c ?\C-l return return home ?k] 0 "%d")
+      )
+
+(evil-leader/set-key (kbd "a o L") 'make-headline-and-parent-link)
+
+
+
+
+
+
+
+
+
+
+
+
+
+)
 
 
 ;; ;; Do not write anything past this comment. This is where Emacs will
@@ -2119,10 +2247,13 @@ This function is called at the very end of Spacemacs initialization."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(evil-want-Y-yank-to-eol nil)
+ '(helm-split-window-inside-p t)
  '(org-agenda-files
-   '("r:/Apps/Editorial/subnetting-flash-cards.org" "r:/Apps/Editorial/unchecked-musings.org" "r:/Apps/Editorial/todowork.org" "r:/Apps/Editorial/inbox.org" "r:/Apps/Editorial/Meetings.org" "r:/Apps/Editorial/somedaymaybehome.org" "r:/Apps/Editorial/somedaymaybework.org" "r:/Apps/Editorial/todohome.org"))
+   '("r:/Apps/Editorial/inbox.org" "r:/Apps/Editorial/Meetings.org" "r:/Apps/Editorial/flash-cards-study-is-fun.org" "r:/Apps/Editorial/unchecked-musings.org" "r:/Apps/Editorial/todowork.org" "r:/Apps/Editorial/somedaymaybehome.org" "r:/Apps/Editorial/somedaymaybework.org" "r:/Apps/Editorial/todohome.org"))
  '(org-drill-cram-hours 1)
+ '(org-drill-learn-fraction 0.4)
  '(org-drill-leech-method 'warn)
+ '(org-enforce-todo-dependencies nil)
  '(org-fontify-done-headline nil)
  '(org-fontify-todo-headline nil)
  '(org-refile-use-cache nil)
@@ -2146,6 +2277,7 @@ This function is called at the very end of Spacemacs initialization."
      ("'" . org-cut-subtree)
      ("=" . org-columns)
      ("Outline Structure Editing")
+     ("M" . make-headline-and-parent-link)
      ("i" . org-metaup)
      ("k" . org-metadown)
      ("r" . org-metaright)
@@ -2191,7 +2323,7 @@ This function is called at the very end of Spacemacs initialization."
  '(org-src-block-faces 'nil)
  '(org-use-speed-commands t)
  '(package-selected-packages
-   '(org-drill org-treeusage tern deft default-text-scale zonokai-emacs zenburn-theme zen-and-art-theme yapfify xterm-color xkcd writeroom-mode white-sand-theme which-key web-mode web-beautify w32-browser vscdark-theme vdiff use-package undo-fu-session undo-fu underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tree-mode toxi-theme toc-org terminal-here tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit swiper-helm sunny-day-theme sublime-themes subatomic256-theme subatomic-theme sphinx-doc spacegray-theme sourcerer-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smeargle slim-mode shell-pop seti-theme scss-mode sass-mode reverse-theme restclient-test restclient-helm restart-emacs rebecca-theme ranger railscasts-theme quickrun pytest pyenv-mode pydoc py-isort purple-haze-theme pug-mode professional-theme prettier-js powershell poetry planet-theme pippel pipenv pip-requirements phoenix-dark-pink-theme phoenix-dark-mono-theme persistent-scratch peep-dired pdf-view-restore pcre2el overseer ov orgit organic-green-theme org-superstar org-super-agenda org-rich-yank org-present org-pomodoro org-mime org-download org-contrib org-cliplink open-junk-file omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme npm-mode nov nose nodejs-repl noctilux-theme naquadah-theme nameless mustang-theme multi-term monokai-theme monochrome-theme molokai-theme moe-theme modus-vivendi-theme modus-operandi-theme minimal-theme material-theme markdown-mode manage-minor-mode majapahit-theme madhat2r-theme macrostep lush-theme livid-mode live-py-mode light-soap-theme kaolin-themes json-reformat json-navigator json-mode js2-refactor js-doc jbeans-theme jazz-theme ir-black-theme intellij-theme inspector inkpot-theme importmagic impatient-mode hybrid-mode highlight-indent-guides hide-lines heroku-theme hemisu-theme helm-xref helm-themes helm-swoop helm-pydoc helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-ls-git helm-git-grep helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme google-this gnuplot gitignore-templates git-timemachine git-modes git-messenger git-link gandalf-theme fuzzy flycheck-package flycheck-elsa flatui-theme flatland-theme farmhouse-theme eziam-theme exotica-theme evil-org espresso-theme eshell-z eshell-prompt-extras esh-help es-mode erc-yt erc-view-log erc-social-graph erc-image erc-hl-nicks engine-mode emr emmet-mode elisp-slime-nav elfeed dracula-theme dotenv-mode doom-themes django-theme diminish darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cython-mode cyberpunk-theme csv-mode company-web company-anaconda color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme chocolate-theme cherry-blossom-theme busybee-theme bubbleberry-theme bm blacken birds-of-paradise-plus-theme bind-map beacon bash-completion badwolf-theme auto-yasnippet auto-compile apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes ahk-mode afternoon-theme ace-jump-helm-line ac-ispell 2048-game)))
+   '(shackle org-journal topspace redacted posframe org-drill org-treeusage tern deft default-text-scale zonokai-emacs zenburn-theme zen-and-art-theme yapfify xterm-color xkcd writeroom-mode white-sand-theme which-key web-mode web-beautify w32-browser vscdark-theme vdiff use-package undo-fu-session undo-fu underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tree-mode toxi-theme toc-org terminal-here tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit swiper-helm sunny-day-theme sublime-themes subatomic256-theme subatomic-theme sphinx-doc spacegray-theme sourcerer-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smeargle slim-mode shell-pop seti-theme scss-mode sass-mode reverse-theme restclient-test restclient-helm restart-emacs rebecca-theme ranger railscasts-theme quickrun pytest pyenv-mode pydoc py-isort purple-haze-theme pug-mode professional-theme prettier-js powershell poetry planet-theme pippel pipenv pip-requirements phoenix-dark-pink-theme phoenix-dark-mono-theme persistent-scratch peep-dired pdf-view-restore pcre2el overseer ov orgit organic-green-theme org-superstar org-super-agenda org-rich-yank org-present org-pomodoro org-mime org-download org-contrib org-cliplink open-junk-file omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme npm-mode nov nose nodejs-repl noctilux-theme naquadah-theme nameless mustang-theme multi-term monokai-theme monochrome-theme molokai-theme moe-theme modus-vivendi-theme modus-operandi-theme minimal-theme material-theme markdown-mode manage-minor-mode majapahit-theme madhat2r-theme macrostep lush-theme livid-mode live-py-mode light-soap-theme kaolin-themes json-reformat json-navigator json-mode js2-refactor js-doc jbeans-theme jazz-theme ir-black-theme intellij-theme inspector inkpot-theme importmagic impatient-mode hybrid-mode highlight-indent-guides hide-lines heroku-theme hemisu-theme helm-xref helm-themes helm-swoop helm-pydoc helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-ls-git helm-git-grep helm-flx helm-descbinds helm-css-scss helm-company helm-c-yasnippet helm-ag hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme google-this gnuplot gitignore-templates git-timemachine git-modes git-messenger git-link gandalf-theme fuzzy flycheck-package flycheck-elsa flatui-theme flatland-theme farmhouse-theme eziam-theme exotica-theme evil-org espresso-theme eshell-z eshell-prompt-extras esh-help es-mode erc-yt erc-view-log erc-social-graph erc-image erc-hl-nicks engine-mode emr emmet-mode elisp-slime-nav elfeed dracula-theme dotenv-mode doom-themes django-theme diminish darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cython-mode cyberpunk-theme csv-mode company-web company-anaconda color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme chocolate-theme cherry-blossom-theme busybee-theme bubbleberry-theme bm blacken birds-of-paradise-plus-theme bind-map beacon bash-completion badwolf-theme auto-yasnippet auto-compile apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes ahk-mode afternoon-theme ace-jump-helm-line ac-ispell 2048-game)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
